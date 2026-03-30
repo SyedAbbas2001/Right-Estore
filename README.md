@@ -1,4 +1,4 @@
-# 🧸 KiddyShop — Kids E-Commerce Platform
+# 🧸 Right Estore — Kids E-Commerce Platform
 
 A fully featured, production-ready kids e-commerce website built with Next.js 15 App Router, featuring a playful pastel design, complete shopping flow, and admin dashboard.
 
@@ -145,8 +145,8 @@ kids-store/
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@kiddyshop.pk | admin123 |
-| User | demo@kiddyshop.pk | password123 |
+| Admin | admin@rightestore.pk | admin123 |
+| User | demo@rightestore.pk | password123 |
 
 **Admin Panel:** [http://localhost:3000/admin-login](http://localhost:3000/admin-login)
 

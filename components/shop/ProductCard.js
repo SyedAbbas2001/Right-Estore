@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,6 +11,7 @@ import { useCartStore, useWishlistStore } from '@/store';
 export default function ProductCard({ product, priority = false }) {
   const [imgIdx, setImgIdx] = useState(0);
   const [added, setAdded] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   const addItem = useCartStore(s => s.addItem);
   const { addItem: toggleWish, isWishlisted } = useWishlistStore();
@@ -35,10 +37,15 @@ export default function ProductCard({ product, priority = false }) {
         <div className="relative aspect-square overflow-hidden bg-gray-50"
           onMouseEnter={() => product.images?.length > 1 && setImgIdx(1)}
           onMouseLeave={() => setImgIdx(0)}>
-          <img src={product.images?.[imgIdx] || product.images?.[0]}
+          <Image
+            src={imgError ? 'https://thumbs.dreamstime.com/b/tyumen-russia-june-red-reebok-logo-model-nanoflex-sneakers-running-shoes-men-ek-m-325921711.jpg' : product.images?.[imgIdx] || product.images?.[0] || 'https://thumbs.dreamstime.com/b/tyumen-russia-june-red-reebok-logo-model-nanoflex-sneakers-running-shoes-men-ek-m-325921711.jpg'}
             alt={product.name}
-            loading={priority ? 'eager' : 'lazy'}
-            className="product-img w-full h-full object-cover" />
+            width={600}
+            height={600}
+            unoptimized
+            onError={() => setImgError(true)}
+            className="product-img w-full h-full object-cover"
+          />
 
           {/* Dark overlay on hover */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/8 transition-colors duration-300" />

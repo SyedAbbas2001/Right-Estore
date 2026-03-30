@@ -120,7 +120,7 @@ export const products = [
     badge: 'Hot',
     badgeColor: 'bg-candy-orange',
     images: [
-      'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=600&fit=crop',
       'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=600&fit=crop',
     ],
     description: 'A super cozy star-print hoodie that kids will want to wear every day! Made from a warm cotton blend with a soft fleece lining.',
@@ -516,7 +516,7 @@ export const testimonials = [
     name: 'Aisha Rahman',
     role: 'Mom of 3',
     avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
-    text: 'KiddyShop is my go-to for all my kids\' needs. The quality is amazing and my children absolutely love everything!',
+    text: 'Right Estore is my go-to for all my kids\' needs. The quality is amazing and my children absolutely love everything!',
     rating: 5,
   },
   {

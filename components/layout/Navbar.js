@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faShoppingCart, faHeart, faMagnifyingGlass, faBars, faXmark,
-  faUser, faChevronDown, faTag, faStar, faFire, faBagShopping
+  faUser, faChevronDown, faTag, faStar, faFire, faBagShopping, faStore
 } from '@fortawesome/free-solid-svg-icons';
 import { useCartStore, useWishlistStore } from '@/store';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -70,10 +70,10 @@ export default function Navbar() {
                 transition={{ duration: 0.5 }}
                 className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-xl md:text-2xl shadow-lg"
               >
-                🧸
+                <FontAwesomeIcon icon={faStore} className="text-white" />
               </motion.div>
               <span className="font-display text-2xl md:text-3xl text-gray-800">
-                Kiddy<span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-600">Shop</span>
+                Right <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-600">Estore</span>
               </span>
             </Link>
 

@@ -22,7 +22,7 @@ export default function SignupPage() {
     if (form.password.length < 8) { toast.error('Password must be at least 8 characters'); return; }
     setLoading(true);
     await new Promise(r => setTimeout(r, 1500));
-    toast.success('Account created! Welcome to KiddyShop 🎉');
+    toast.success('Account created! Welcome to Right Estore 🎉');
     router.push('/');
     setLoading(false);
   };

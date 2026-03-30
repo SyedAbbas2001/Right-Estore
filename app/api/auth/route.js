@@ -5,14 +5,14 @@ const users = [
   {
     id: 'u001',
     name: 'Demo User',
-    email: 'demo@kiddyshop.pk',
+    email: 'demo@rightestore.pk',
     password: 'password123', // In production: bcrypt hashed
     role: 'user',
   },
   {
     id: 'admin001',
     name: 'Admin User',
-    email: 'admin@kiddyshop.pk',
+    email: 'admin@rightestore.pk',
     password: 'admin123',
     role: 'admin',
   },

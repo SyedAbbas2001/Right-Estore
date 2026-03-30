@@ -71,7 +71,7 @@ export default function Footer() {
             <div className="space-y-2.5">
               {[
                 { icon: faPhone, text: '+92 321 1234567' },
-                { icon: faEnvelope, text: 'hello@kiddyshop.pk' },
+                { icon: faEnvelope, text: 'hello@rightestore.pk' },
                 { icon: faLocationDot, text: 'Karachi, Pakistan' },
               ].map(({ icon, text }) => (
                 <div key={text} className="flex items-center gap-3 text-gray-400">
@@ -104,7 +104,7 @@ export default function Footer() {
         {/* Bottom */}
         <div className="border-t border-gray-800 mt-10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-gray-500 text-xs sm:text-sm font-semibold text-center sm:text-left">
-            © 2024 KiddyShop. Made with ❤️ for little ones in Pakistan 🇵🇰
+            © 2024 Right Estore. Made with ❤️ for little ones in Pakistan 🇵🇰
           </p>
           <div className="flex items-center gap-3">
             {socials.map(({ icon, href, color }) => (

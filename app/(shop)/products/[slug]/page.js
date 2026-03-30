@@ -2,6 +2,7 @@
 import { useState, use } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -27,6 +28,7 @@ export default function ProductDetailPage({ params }) {
   const [selColor, setSelColor] = useState(product.colors?.[0] || null);
   const [qty, setQty] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
+  const [imageError, setImageError] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
 
   const addItem = useCartStore(s => s.addItem);
@@ -67,9 +69,14 @@ export default function ProductDetailPage({ params }) {
           <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="space-y-4">
             <div className="relative aspect-square rounded-3xl overflow-hidden bg-white shadow-soft group">
               <AnimatePresence mode="wait">
-                <motion.img key={selImage} src={product.images?.[selImage]} alt={product.name}
-                  initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
+                <Image
+                  key={selImage}
+                  src={imageError ? 'https://thumbs.dreamstime.com/b/tyumen-russia-june-red-reebok-logo-model-nanoflex-sneakers-running-shoes-men-ek-m-325921711.jpg' : product.images?.[selImage] || 'https://thumbs.dreamstime.com/b/tyumen-russia-june-red-reebok-logo-model-nanoflex-sneakers-running-shoes-men-ek-m-325921711.jpg'}
+                  alt={product.name}
+                  width={800}
+                  height={800}
+                  unoptimized
+                  onError={() => setImageError(true)}
                   className="w-full h-full object-cover" />
               </AnimatePresence>
 

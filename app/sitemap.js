@@ -1,7 +1,7 @@
 import { products, categories } from '@/data/products';
 
 export default function sitemap() {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kiddyshop.pk';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rightestore.pk';
 
   const staticPages = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },

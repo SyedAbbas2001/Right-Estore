@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 
 const contactInfo = [
   { icon: faPhone, label: 'Phone', value: '+92 321 1234567', sub: 'Mon-Sat, 9am-7pm', color: 'text-pink-500 bg-pink-50' },
-  { icon: faEnvelope, label: 'Email', value: 'hello@kiddyshop.pk', sub: 'Reply within 24 hours', color: 'text-purple-500 bg-purple-50' },
+  { icon: faEnvelope, label: 'Email', value: 'hello@rightestore.pk', sub: 'Reply within 24 hours', color: 'text-purple-500 bg-purple-50' },
   { icon: faLocationDot, label: 'Location', value: 'DHA Phase 6, Karachi', sub: 'Sindh, Pakistan', color: 'text-blue-500 bg-blue-50' },
   { icon: faClock, label: 'Hours', value: 'Mon-Sat: 9am-7pm', sub: 'Sunday: 10am-5pm', color: 'text-green-500 bg-green-50' },
 ];

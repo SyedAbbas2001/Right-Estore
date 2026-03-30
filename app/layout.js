@@ -8,15 +8,15 @@ import '@fortawesome/fontawesome-svg-core/styles.css';
 config.autoAddCss = false;
 
 export const metadata = {
-  title: { default: 'KiddyShop — Magical Shopping for Little Ones', template: '%s | KiddyShop' },
+  title: { default: 'Right Estore — Magical Shopping for Little Ones', template: '%s | Right Estore' },
   description: 'Discover enchanting kids clothes, toys, newborn essentials & stationery. Free shipping on orders over Rs. 2000!',
   keywords: ['kids clothes', 'children toys', 'baby essentials', 'kids stationery', 'online shopping Pakistan'],
   openGraph: {
-    title: 'KiddyShop — Magical Shopping for Little Ones',
+    title: 'Right Estore — Magical Shopping for Little Ones',
     description: 'Enchanting collection of kids clothes, toys, newborn essentials & stationery.',
     type: 'website',
     locale: 'en_PK',
-    siteName: 'KiddyShop',
+    siteName: 'Right Estore',
   },
 };
 

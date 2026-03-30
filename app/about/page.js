@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export const metadata = {
   title: 'About Us',
-  description: 'Learn about KiddyShop — our story, mission and the team behind the magic.',
+  description: 'Learn about Right Estore — our story, mission and the team behind the magic.',
 };
 
 const team = [
@@ -35,7 +35,7 @@ export default function AboutPage() {
           <div className="text-6xl mb-4">🧸</div>
           <h1 className="font-display text-5xl md:text-6xl text-white mb-4">Our Story</h1>
           <p className="text-white/80 text-xl font-semibold leading-relaxed">
-            Born from a parent's frustration of finding quality, affordable, and safe products for kids in Pakistan — KiddyShop is our answer.
+            Born from a parent's frustration of finding quality, affordable, and safe products for kids in Pakistan — Right Estore is our answer.
           </p>
         </div>
       </div>
@@ -48,7 +48,7 @@ export default function AboutPage() {
         </div>
         <h2 className="font-display text-4xl text-gray-800 mb-6">Making Childhood Magical</h2>
         <p className="text-gray-600 font-semibold text-lg leading-relaxed mb-6">
-          At KiddyShop, we believe every child deserves access to beautiful, safe, and educational products that spark their imagination and support their development.
+          At Right Estore, we believe every child deserves access to beautiful, safe, and educational products that spark their imagination and support their development.
         </p>
         <p className="text-gray-600 font-semibold text-lg leading-relaxed">
           Founded in 2023 in Karachi, we started with a small selection of imported baby clothes. Today, we stock over 500 products across 4 categories, serving families in 200+ cities across Pakistan.

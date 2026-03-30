@@ -78,7 +78,7 @@ export default function LoginPage() {
               className="btn-primary w-full py-4 justify-center text-base disabled:opacity-70 mt-2">
               {loading
                 ? 'Logging in...'
-                : <><FontAwesomeIcon icon={faRightToBracket} className="w-4 h-4 mr-2" />Login to KiddyShop</>}
+                : <><FontAwesomeIcon icon={faRightToBracket} className="w-4 h-4 mr-2" />Login to Right Estore</>}
             </motion.button>
           </form>
 

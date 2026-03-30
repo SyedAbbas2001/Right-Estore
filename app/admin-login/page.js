@@ -14,7 +14,7 @@ export default function AdminLoginPage() {
   const handleSubmit = async e => {
     e.preventDefault();
     setLoading(true);
-    if (form.email === 'admin@kiddyshop.pk' && form.password === 'admin123') {
+    if (form.email === 'admin@rightestore.pk' && form.password === 'admin123') {
       toast.success('Welcome, Admin! 🎉');
       router.push('/admin');
     } else {
@@ -35,7 +35,7 @@ export default function AdminLoginPage() {
             className="w-16 h-16 rounded-3xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-3xl mx-auto mb-4 shadow-lg shadow-purple-900/50">
             🧸
           </motion.div>
-          <h1 className="font-display text-3xl text-white">KiddyShop Admin</h1>
+          <h1 className="font-display text-3xl text-white">Right Estore Admin</h1>
           <p className="text-gray-500 font-semibold mt-1 text-sm">Restricted access — Authorized personnel only</p>
         </motion.div>
 
@@ -53,7 +53,7 @@ export default function AdminLoginPage() {
               <div className="relative">
                 <FontAwesomeIcon icon={faEnvelope} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
                 <input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                  placeholder="admin@kiddyshop.pk"
+                  placeholder="admin@rightestore.pk"
                   className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-gray-800 border border-gray-700 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 font-semibold text-sm" required />
               </div>
             </div>
@@ -77,7 +77,7 @@ export default function AdminLoginPage() {
 
           <div className="mt-6 p-4 bg-gray-800/50 rounded-2xl text-center">
             <p className="text-gray-500 text-xs font-semibold">
-              Demo: <span className="text-purple-400 font-black">admin@kiddyshop.pk</span> / <span className="text-purple-400 font-black">admin123</span>
+              Demo: <span className="text-purple-400 font-black">admin@rightestore.pk</span> / <span className="text-purple-400 font-black">admin123</span>
             </p>
           </div>
         </motion.div>

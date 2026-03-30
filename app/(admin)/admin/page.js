@@ -61,7 +61,7 @@ export default function AdminDashboard() {
           <Link href="/admin" className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-xl">🧸</div>
             <div>
-              <span className="font-display text-xl text-white">KiddyShop</span>
+              <span className="font-display text-xl text-white">Right Estore</span>
               <p className="text-gray-500 text-xs font-semibold">Admin Panel</p>
             </div>
           </Link>
@@ -86,7 +86,7 @@ export default function AdminDashboard() {
             <div className="w-9 h-9 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400 font-black">A</div>
             <div>
               <p className="text-white font-bold text-sm">Admin User</p>
-              <p className="text-gray-500 text-xs">admin@kiddyshop.pk</p>
+              <p className="text-gray-500 text-xs">admin@rightestore.pk</p>
             </div>
           </div>
           <Link href="/" className="flex items-center gap-2 text-sm text-gray-400 hover:text-red-400 transition-colors font-bold">

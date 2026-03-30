@@ -66,7 +66,7 @@ function OrderContent() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
             <div className="text-4xl mb-3">🎉</div>
             <h1 className="font-display text-4xl sm:text-5xl text-gray-800 mb-2">Order Placed!</h1>
-            <p className="text-gray-500 font-semibold mb-1 text-sm sm:text-base">Thank you for shopping with KiddyShop!</p>
+            <p className="text-gray-500 font-semibold mb-1 text-sm sm:text-base">Thank you for shopping with Right Estore!</p>
             <p className="text-gray-400 font-semibold text-xs sm:text-sm mb-6">Confirmation sent to your email shortly.</p>
 
             <div className="bg-purple-50 rounded-2xl px-6 py-4 mb-5">
