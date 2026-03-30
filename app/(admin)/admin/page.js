@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faTableColumns, faBoxOpen, faBagShopping, faTag, faChartBar,
   faGear, faRightFromBracket, faBars, faXmark, faBell,
-  faArrowTrendUp, faArrowTrendDown, faExternalLink, faMoneyBillTrendUp, faUsers
+  faArrowTrendUp, faArrowTrendDown, faExternalLink
 } from '@fortawesome/free-solid-svg-icons';
 
 const nav = [
@@ -20,10 +20,10 @@ const nav = [
 ];
 
 const stats = [
-  { label: 'Total Revenue', value: 'Rs. 2,45,890', change: '+18%', up: true, color: 'from-pink-500 to-rose-500', icon: faMoneyBillTrendUp },
-  { label: 'Orders Today', value: '47', change: '+12%', up: true, color: 'from-purple-500 to-violet-600', icon: faBoxOpen },
-  { label: 'Total Products', value: '234', change: '+5', up: true, color: 'from-blue-400 to-cyan-500', icon: faShoppingBag },
-  { label: 'New Customers', value: '89', change: '+23%', up: true, color: 'from-emerald-400 to-teal-500', icon: faUsers },
+  { label: 'Total Revenue', value: 'Rs. 2,45,890', change: '+18%', up: true, color: 'from-pink-500 to-rose-500', emoji: '💰' },
+  { label: 'Orders Today', value: '47', change: '+12%', up: true, color: 'from-purple-500 to-violet-600', emoji: '📦' },
+  { label: 'Total Products', value: '234', change: '+5', up: true, color: 'from-blue-400 to-cyan-500', emoji: '🛍️' },
+  { label: 'New Customers', value: '89', change: '+23%', up: true, color: 'from-emerald-400 to-teal-500', emoji: '👥' },
 ];
 
 const recentOrders = [
@@ -59,9 +59,7 @@ export default function AdminDashboard() {
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 flex flex-col transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static lg:flex`}>
         <div className="p-5 border-b border-gray-800">
           <Link href="/admin" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
-              <FontAwesomeIcon icon={faTableColumns} className="w-5 h-5 text-white" />
-            </div>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-xl">🧸</div>
             <div>
               <span className="font-display text-xl text-white">KiddyShop</span>
               <p className="text-gray-500 text-xs font-semibold">Admin Panel</p>
@@ -128,7 +126,7 @@ export default function AdminDashboard() {
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
                 className="bg-white rounded-2xl p-4 sm:p-5 shadow-soft">
                 <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center text-xl sm:text-2xl mb-3`}>
-                  <FontAwesomeIcon icon={stat.icon} className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                  {stat.emoji}
                 </div>
                 <p className="text-gray-500 text-xs font-bold mb-1">{stat.label}</p>
                 <div className="flex items-end justify-between">

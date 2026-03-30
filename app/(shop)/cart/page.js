@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faPlus, faMinus, faArrowLeft, faBagShopping, faTag, faTruck, faSparkles, faStar } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faPlus, faMinus, faArrowLeft, faBagShopping, faTag, faTruck } from '@fortawesome/free-solid-svg-icons';
 import { useCartStore } from '@/store';
 import ProductCard from '@/components/shop/ProductCard';
 import { products } from '@/data/products';
@@ -20,12 +20,12 @@ export default function CartPage() {
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-20">
         <div className="text-center max-w-md">
           <motion.div animate={{ rotate: [0, -5, 5, 0] }} transition={{ duration: 3, repeat: Infinity }}
-            className="text-8xl mb-6"><FontAwesomeIcon icon={faBagShopping} className="w-16 h-16 text-purple-500" /></motion.div>
+            className="text-8xl mb-6">🛒</motion.div>
           <h2 className="font-display text-4xl text-gray-800 mb-3">Cart is empty!</h2>
           <p className="text-gray-500 font-semibold mb-8 text-sm sm:text-base">Add some magical items to get started</p>
           <Link href="/products">
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} className="btn-primary text-lg px-10 py-4">
-              <FontAwesomeIcon icon={faSparkles} className="w-4 h-4 mr-2" />Start Shopping
+              Start Shopping ✨
             </motion.button>
           </Link>
         </div>

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUser, faBoxOpen, faLocationDot, faShieldHalved, faRightFromBracket,
-  faPenToSquare, faCheck, faPlus, faTrash, faSparkles, faStar
+  faPenToSquare, faCheck, faPlus, faTrash
 } from '@fortawesome/free-solid-svg-icons';
 
 const orders = [
@@ -42,10 +42,8 @@ export default function AccountPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           className="bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 rounded-3xl p-6 sm:p-8 mb-6 relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
-            {[faSparkles, faStar, faStar].map((icon, i) => (
-              <div key={i} className="absolute" style={{top:`${20+i*30}%`, right:`${5+i*15}%`}}>
-                <FontAwesomeIcon icon={icon} className="text-5xl text-white" />
-              </div>
+            {['✨','⭐','🌟'].map((e,i) => (
+              <div key={i} className="absolute text-5xl" style={{top:`${20+i*30}%`, right:`${5+i*15}%`}}>{e}</div>
             ))}
           </div>
           <div className="flex items-center gap-4 sm:gap-5 relative">
@@ -57,7 +55,7 @@ export default function AccountPage() {
               <h1 className="font-display text-2xl sm:text-3xl text-white">{profile.name}</h1>
               <p className="text-white/80 font-semibold text-sm">{profile.email}</p>
               <div className="flex items-center gap-2 sm:gap-3 mt-2 flex-wrap">
-                <span className="bg-white/20 rounded-full px-3 py-1 text-xs font-bold text-white"><FontAwesomeIcon icon={faStar} className="w-3 h-3 mr-1" />Premium Member</span>
+                <span className="bg-white/20 rounded-full px-3 py-1 text-xs font-bold text-white">⭐ Premium Member</span>
                 <span className="text-white/60 text-xs font-semibold">Since Nov 2024</span>
               </div>
             </div>

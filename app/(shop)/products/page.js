@@ -3,7 +3,7 @@ import { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGrid2, faList, faFilter, faChevronDown, faXmark, faMagnifyingGlass, faPuzzlePiece } from '@fortawesome/free-solid-svg-icons';
+import { faGrid2, faList, faFilter, faChevronDown, faXmark, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import ProductCard from '@/components/shop/ProductCard';
 import ProductFilters from '@/components/shop/ProductFilters';
 import { products, categories } from '@/data/products';
@@ -125,7 +125,7 @@ function ProductsContent() {
                 {categories.map(cat => (
                   <a key={cat.id} href={`/products?category=${cat.slug}`}
                     className="flex items-center gap-1.5 px-3 py-2 bg-white rounded-full border border-gray-200 text-xs font-bold text-gray-600 hover:border-purple-400 hover:text-purple-600 transition-all shadow-soft whitespace-nowrap">
-                    {cat.name}
+                    <span>{cat.emoji}</span>{cat.name}
                   </a>
                 ))}
               </div>
@@ -210,8 +210,8 @@ export default function ProductsPage() {
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="text-6xl animate-bounce mb-4"><FontAwesomeIcon icon={faPuzzlePiece} className="w-16 h-16 text-purple-600" /></div>
-          <p className="font-display text-2xl text-purple-600">Loading products... <FontAwesomeIcon icon={faMagnifyingGlass} className="inline-block w-5 h-5 ml-2" /></p>
+          <div className="text-6xl animate-bounce mb-4">🧸</div>
+          <p className="font-display text-2xl text-purple-600">Loading products...</p>
         </div>
       </div>
     }>

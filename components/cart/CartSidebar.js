@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark, faPlus, faMinus, faTrash, faBagShopping, faArrowRight, faTruck, faSparkles, faStar } from '@fortawesome/free-solid-svg-icons';
+import { faXmark, faPlus, faMinus, faTrash, faBagShopping, faArrowRight, faTruck } from '@fortawesome/free-solid-svg-icons';
 import { useCartStore } from '@/store';
 
 export default function CartSidebar() {
@@ -55,12 +55,12 @@ export default function CartSidebar() {
               <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
                 className="flex flex-col items-center justify-center h-full text-center py-16">
                 <motion.div animate={{ rotate: [0, -10, 10, 0] }} transition={{ duration: 2, repeat: Infinity }}
-                  className="mb-5"><FontAwesomeIcon icon={faBagShopping} className="w-12 h-12 text-purple-500" /></motion.div>
+                  className="text-7xl mb-5">🛒</motion.div>
                 <h3 className="font-display text-2xl text-gray-700 mb-2">Cart is empty!</h3>
                 <p className="text-gray-400 font-semibold mb-6 text-sm">Add some magical items to get started</p>
                 <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
                   onClick={closeCart} className="btn-primary">
-                  <FontAwesomeIcon icon={faSparkles} className="w-4 h-4 mr-2" />Start Shopping
+                  Start Shopping ✨
                 </motion.button>
               </motion.div>
             ) : (
@@ -126,7 +126,7 @@ export default function CartSidebar() {
             </div>
             <div className="flex justify-between text-sm font-semibold text-gray-600">
               <span>Shipping</span>
-              <span className={shipping === 0 ? 'text-green-600 font-black' : ''}>{shipping === 0 ? <><FontAwesomeIcon icon={faStar} className="mr-1 w-4 h-4" />FREE</> : `Rs. ${shipping}`}</span>
+              <span className={shipping === 0 ? 'text-green-600 font-black' : ''}>{shipping === 0 ? 'FREE 🎉' : `Rs. ${shipping}`}</span>
             </div>
             <div className="flex justify-between text-lg font-black text-gray-800 border-t border-gray-100 pt-3">
               <span>Total</span>

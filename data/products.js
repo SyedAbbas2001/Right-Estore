@@ -6,7 +6,7 @@ export const categories = [
     name: 'Garments',
     slug: 'garments',
     description: 'Adorable clothes for little ones',
-    icon: 'faTshirt',
+    emoji: '👗',
     color: 'from-pink-400 to-rose-400',
     bg: 'bg-pastel-pink',
     count: 48,
@@ -17,7 +17,7 @@ export const categories = [
     name: 'New Born',
     slug: 'newborn',
     description: 'Gentle essentials for newborns',
-    icon: 'faBaby',
+    emoji: '👶',
     color: 'from-blue-400 to-cyan-400',
     bg: 'bg-pastel-blue',
     count: 32,
@@ -28,7 +28,7 @@ export const categories = [
     name: 'Toys',
     slug: 'toys',
     description: 'Fun toys to spark imagination',
-    icon: 'faPuzzlePiece',
+    emoji: '🧸',
     color: 'from-yellow-400 to-amber-400',
     bg: 'bg-pastel-yellow',
     count: 65,
@@ -39,7 +39,7 @@ export const categories = [
     name: 'Stationery',
     slug: 'stationery',
     description: 'Creative tools for young minds',
-    icon: 'faPenFancy',
+    emoji: '✏️',
     color: 'from-purple-400 to-violet-400',
     bg: 'bg-pastel-purple',
     count: 29,
@@ -504,10 +504,10 @@ export const bannerSlides = [
 ];
 
 export const stats = [
-  { label: 'Happy Kids', value: '50K+', icon: 'faSmile' },
-  { label: 'Products', value: '500+', icon: 'faGift' },
-  { label: 'Brands', value: '100+', icon: 'faStar' },
-  { label: 'Cities', value: '200+', icon: 'faCity' },
+  { label: 'Happy Kids', value: '50K+', emoji: '😊' },
+  { label: 'Products', value: '500+', emoji: '🎁' },
+  { label: 'Brands', value: '100+', emoji: '⭐' },
+  { label: 'Cities', value: '200+', emoji: '🏙️' },
 ];
 
 export const testimonials = [

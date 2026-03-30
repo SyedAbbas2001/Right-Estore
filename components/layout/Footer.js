@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInstagram, faFacebook, faTwitter, faYoutube, faTiktok } from '@fortawesome/free-brands-svg-icons';
-import { faPhone, faEnvelope, faLocationDot, faPuzzlePiece, faSparkles } from '@fortawesome/free-solid-svg-icons';
+import { faPhone, faEnvelope, faLocationDot } from '@fortawesome/free-solid-svg-icons';
 
 const links = {
   shop: [
@@ -50,7 +50,7 @@ export default function Footer() {
               className="flex-1 px-5 py-3.5 rounded-2xl text-gray-800 font-semibold focus:outline-none focus:ring-2 focus:ring-white/60 text-sm" />
             <button type="submit"
               className="bg-white text-purple-700 font-black px-6 py-3.5 rounded-2xl hover:bg-gray-100 transition-colors whitespace-nowrap text-sm">
-              Subscribe <FontAwesomeIcon icon={faSparkles} className="w-4 h-4 inline-block ml-1" />
+              Subscribe ✨
             </button>
           </form>
         </div>
@@ -62,9 +62,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-2 lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-xl">
-                <FontAwesomeIcon icon={faPuzzlePiece} className="w-5 h-5" />
-              </div>
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-xl">🧸</div>
               <span className="font-display text-2xl">Kiddy<span className="text-pink-400">Shop</span></span>
             </div>
             <p className="text-gray-400 font-semibold text-sm leading-relaxed mb-5">

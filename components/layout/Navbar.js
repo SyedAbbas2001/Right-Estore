@@ -5,8 +5,7 @@ import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faShoppingCart, faHeart, faMagnifyingGlass, faBars, faXmark,
-  faUser, faChevronDown, faTag, faStar, faFire, faBagShopping, faGift,
-  faTshirt, faBaby, faPuzzlePiece, faPenFancy
+  faUser, faChevronDown, faTag, faStar, faFire, faBagShopping
 } from '@fortawesome/free-solid-svg-icons';
 import { useCartStore, useWishlistStore } from '@/store';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,10 +16,10 @@ const navLinks = [
   {
     label: 'Categories', href: '#',
     children: [
-      { label: 'Garments', href: '/products?category=garments', icon: faTshirt },
-      { label: 'New Born', href: '/products?category=newborn', icon: faBaby },
-      { label: 'Toys', href: '/products?category=toys', icon: faPuzzlePiece },
-      { label: 'Stationery', href: '/products?category=stationery', icon: faPenFancy },
+      { label: 'Garments', href: '/products?category=garments', emoji: '👗' },
+      { label: 'New Born', href: '/products?category=newborn', emoji: '👶' },
+      { label: 'Toys', href: '/products?category=toys', emoji: '🧸' },
+      { label: 'Stationery', href: '/products?category=stationery', emoji: '✏️' },
     ],
   },
   { label: 'New Arrivals', href: '/products?filter=new', icon: faStar },
@@ -52,11 +51,11 @@ export default function Navbar() {
     <>
       {/* Promo bar */}
       <div className="gradient-animate text-white text-center text-xs sm:text-sm py-2 font-bold tracking-wide">
-        <FontAwesomeIcon icon={faGift} className="animate-pulse inline-block mr-2 w-3 h-3" />
+        <span className="animate-pulse inline-block mr-2">🎉</span>
         Free Shipping on orders over Rs. 2,000! Code:
         <span className="mx-1 bg-white/25 px-2 py-0.5 rounded-full font-black">KIDDY10</span>
         for 10% off
-        <FontAwesomeIcon icon={faGift} className="animate-pulse inline-block ml-2 w-3 h-3" />
+        <span className="animate-pulse inline-block ml-2">🎉</span>
       </div>
 
       {/* Main Nav */}
@@ -71,7 +70,7 @@ export default function Navbar() {
                 transition={{ duration: 0.5 }}
                 className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-xl md:text-2xl shadow-lg"
               >
-                <FontAwesomeIcon icon={faBagShopping} className="w-5 h-5 md:w-6 md:h-6" />
+                🧸
               </motion.div>
               <span className="font-display text-2xl md:text-3xl text-gray-800">
                 Kiddy<span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-600">Shop</span>
@@ -107,7 +106,7 @@ export default function Navbar() {
                           {link.children.map(child => (
                             <Link key={child.href} href={child.href}
                               className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
-                              <FontAwesomeIcon icon={child.icon} className="w-4 h-4" />
+                              <span className="text-base">{child.emoji}</span>
                               {child.label}
                             </Link>
                           ))}
@@ -208,7 +207,7 @@ export default function Navbar() {
                         {link.children.map(child => (
                           <Link key={child.href} href={child.href}
                             className="flex items-center gap-2 py-2 px-4 rounded-xl text-sm text-gray-600 font-semibold hover:text-purple-600">
-                            <FontAwesomeIcon icon={child.icon} className="w-4 h-4" />{child.label}
+                            <span>{child.emoji}</span>{child.label}
                           </Link>
                         ))}
                       </div>

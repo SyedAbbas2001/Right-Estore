@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faLock, faEye, faEyeSlash, faRightToBracket, faStar, faRibbon, faSparkles, faBalloon, faBaby } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faLock, faEye, faEyeSlash, faRightToBracket } from '@fortawesome/free-solid-svg-icons';
 import { faGoogle, faFacebook } from '@fortawesome/free-brands-svg-icons';
 import toast from 'react-hot-toast';
 
@@ -23,29 +23,27 @@ export default function LoginPage() {
     setLoading(false);
   };
 
-  const floatIcons = [faStar, faRibbon, faSparkles, faStar, faBalloon];
+  const floats = ['🌟', '🎀', '✨', '⭐', '🎈'];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex items-center justify-center px-4 py-12 relative overflow-hidden">
-      {floatIcons.map((icon, i) => (
+      {floats.map((emoji, i) => (
         <motion.div key={i}
           animate={{ y: [0, -20, 0], rotate: [0, 10, -5, 0] }}
           transition={{ duration: 4 + i, repeat: Infinity, delay: i * 0.7 }}
-          className="absolute opacity-20 pointer-events-none select-none"
+          className="absolute text-4xl opacity-20 pointer-events-none select-none"
           style={{ top: `${10 + i * 18}%`, left: i % 2 === 0 ? `${5 + i * 3}%` : undefined, right: i % 2 !== 0 ? `${5 + i * 4}%` : undefined }}>
-          <FontAwesomeIcon icon={icon} className="text-4xl" />
+          {emoji}
         </motion.div>
       ))}
 
       <div className="w-full max-w-md relative">
         <motion.div initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center shadow-lg">
-              <FontAwesomeIcon icon={faBaby} className="w-6 h-6 text-white" />
-            </div>
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center text-2xl shadow-lg">🧸</div>
             <span className="font-display text-3xl text-gray-800">Kiddy<span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-600">Shop</span></span>
           </Link>
-          <p className="text-gray-500 font-semibold mt-2 text-sm">Welcome back! Shop for little ones <FontAwesomeIcon icon={faStar} className="inline-block w-4 h-4" /></p>
+          <p className="text-gray-500 font-semibold mt-2 text-sm">Welcome back! Shop for little ones 🌟</p>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}

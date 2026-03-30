@@ -261,7 +261,7 @@ export default function ProductDetailPage({ params }) {
                 <div className="space-y-4">
                   {productReviews.length === 0 ? (
                     <div className="bg-white rounded-3xl p-8 text-center shadow-soft">
-                      <div className="text-5xl mb-3"><FontAwesomeIcon icon={faStar} className="w-12 h-12 text-amber-400" /></div>
+                      <div className="text-5xl mb-3">⭐</div>
                       <p className="font-bold text-gray-500">No reviews yet. Be the first!</p>
                     </div>
                   ) : productReviews.map((r, i) => (

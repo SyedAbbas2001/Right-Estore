@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faCartShopping, faHeartCrack, faHeart, faSparkles } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faCartShopping, faHeartCrack, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { useWishlistStore, useCartStore } from '@/store';
 
 export default function WishlistPage() {
@@ -41,7 +41,7 @@ export default function WishlistPage() {
             <p className="text-gray-500 font-semibold mb-8 text-sm sm:text-base">Save items you love and come back to them later!</p>
             <Link href="/products">
               <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} className="btn-primary text-lg px-10 py-4">
-                <FontAwesomeIcon icon={faSparkles} className="w-4 h-4 mr-2" />Discover Products
+                Discover Products ✨
               </motion.button>
             </Link>
           </motion.div>

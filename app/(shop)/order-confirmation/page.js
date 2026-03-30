@@ -4,19 +4,19 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleCheck, faBox, faTruck, faHouseChimney, faGift, faStar, faSparkles, faRainbow, faRibbon, faHeart, faBalloon, faMoneyBillTrendUp, faCreditCard, faShoppingBag, faCircle } from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck, faBox, faTruck, faHouseChimney, faGift } from '@fortawesome/free-solid-svg-icons';
 
-const confettiIcons = [faStar, faGift, faSparkles, faRainbow, faCircleCheck, faRibbon, faHeart, faBalloon];
+const confettiEmojis = ['🎉', '⭐', '🎊', '✨', '🌟', '🎈', '💜', '🌈'];
 
-function ConfettiPiece({ delay, left, icon }) {
+function ConfettiPiece({ delay, left, emoji }) {
   return (
     <motion.div
       initial={{ y: -50, x: left, opacity: 1, rotate: 0 }}
       animate={{ y: '110vh', rotate: 360, opacity: [1, 1, 0] }}
       transition={{ duration: 3.5, delay, ease: 'easeIn' }}
-      className="fixed top-0 pointer-events-none z-50"
+      className="fixed top-0 text-2xl sm:text-3xl pointer-events-none z-50"
       style={{ left: `${left}%` }}>
-      <FontAwesomeIcon icon={icon} className="text-2xl sm:text-3xl" />
+      {emoji}
     </motion.div>
   );
 }
@@ -35,7 +35,7 @@ function OrderContent() {
   const pieces = [...Array(20)].map((_, i) => ({
     delay: Math.random() * 2,
     left: Math.random() * 100,
-    icon: confettiIcons[Math.floor(Math.random() * confettiIcons.length)],
+    emoji: confettiEmojis[Math.floor(Math.random() * confettiEmojis.length)],
   }));
 
   const estDate = new Date();
@@ -64,7 +64,7 @@ function OrderContent() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
-            <div className="text-4xl mb-3"><FontAwesomeIcon icon={faCircleCheck} className="w-10 h-10 text-green-500" /></div>
+            <div className="text-4xl mb-3">🎉</div>
             <h1 className="font-display text-4xl sm:text-5xl text-gray-800 mb-2">Order Placed!</h1>
             <p className="text-gray-500 font-semibold mb-1 text-sm sm:text-base">Thank you for shopping with KiddyShop!</p>
             <p className="text-gray-400 font-semibold text-xs sm:text-sm mb-6">Confirmation sent to your email shortly.</p>
@@ -76,9 +76,7 @@ function OrderContent() {
 
             <div className={`rounded-2xl px-5 py-3 mb-6 ${method === 'cod' ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
               <p className="font-bold text-sm">
-                {method === 'cod'
-                  ? <><FontAwesomeIcon icon={faMoneyBillTrendUp} className="mr-2" />Cash on Delivery — Pay when you receive</>
-                  : <><FontAwesomeIcon icon={faCreditCard} className="mr-2" />Card Payment Processed Successfully</>}
+                {method === 'cod' ? '💵 Cash on Delivery — Pay when you receive' : '💳 Card Payment Processed Successfully'}
               </p>
             </div>
 
@@ -103,7 +101,7 @@ function OrderContent() {
               <Link href="/products">
                 <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                   className="btn-primary w-full py-3 justify-center text-sm">
-                  <FontAwesomeIcon icon={faShoppingBag} className="w-4 h-4 mr-2" />Shop More
+                  Shop More 🛍️
                 </motion.button>
               </Link>
             </div>
@@ -126,7 +124,7 @@ function OrderContent() {
 
 export default function OrderConfirmationPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-6xl animate-bounce"><FontAwesomeIcon icon={faGift} className="w-16 h-16 text-purple-500" /></div></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-6xl animate-bounce">🎉</div></div>}>
       <OrderContent />
     </Suspense>
   );

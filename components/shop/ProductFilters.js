@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark, faStar, faShirt, faBaby, faPuzzlePiece, faPenFancy, faMars, faVenus, faHandshake } from '@fortawesome/free-solid-svg-icons';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { categories } from '@/data/products';
 
 const allSizes = ['NB','0-3M','3-6M','6-9M','9-12M','2Y','3Y','4Y','5Y','6Y','7Y','8Y','10Y','12Y'];
@@ -12,13 +12,6 @@ export default function ProductFilters({ priceRange, setPriceRange, selectedSize
   const toggleSize = s => setSelectedSizes(p => p.includes(s) ? p.filter(x => x !== s) : [...p, s]);
   const toggleGender = g => setSelectedGenders(p => p.includes(g) ? p.filter(x => x !== g) : [...p, g]);
   const hasFilters = selectedSizes.length > 0 || selectedGenders.length > 0 || priceRange[0] > 0 || priceRange[1] < 10000;
-
-  const categoryIcons = {
-    garments: faShirt,
-    newborn: faBaby,
-    toys: faPuzzlePiece,
-    stationery: faPenFancy,
-  };
 
   const Section = ({ title, children }) => (
     <div className="bg-white rounded-3xl p-4 sm:p-5 shadow-soft">
@@ -41,12 +34,12 @@ export default function ProductFilters({ priceRange, setPriceRange, selectedSize
         <div className="space-y-1">
           <Link href="/products"
             className={`flex items-center justify-between py-2 px-3 rounded-xl text-sm font-bold transition-colors ${!activeCategory ? 'bg-purple-100 text-purple-700' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'}`}>
-            <span className="flex items-center gap-1"><FontAwesomeIcon icon={faStar} className="w-3.5 h-3.5" /> All Products</span>
+            <span>⭐ All Products</span>
           </Link>
           {categories.map(cat => (
             <Link key={cat.id} href={`/products?category=${cat.slug}`}
               className={`flex items-center justify-between py-2 px-3 rounded-xl text-sm font-bold transition-colors ${activeCategory === cat.slug ? 'bg-purple-100 text-purple-700' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'}`}>
-              <span className="flex items-center gap-1"><FontAwesomeIcon icon={categoryIcons[cat.id]} className="w-3.5 h-3.5" /> {cat.name}</span>
+              <span>{cat.emoji} {cat.name}</span>
               <span className="text-xs text-gray-400">{cat.count}</span>
             </Link>
           ))}
@@ -79,7 +72,7 @@ export default function ProductFilters({ priceRange, setPriceRange, selectedSize
           {genders.map(g => (
             <motion.button key={g} whileTap={{ scale: 0.9 }} onClick={() => toggleGender(g)}
               className={`px-4 py-2 rounded-full text-sm font-bold border-2 transition-all ${selectedGenders.includes(g) ? 'bg-purple-600 text-white border-purple-600' : 'border-gray-200 text-gray-600 hover:border-purple-400 hover:text-purple-600'}`}>
-              <FontAwesomeIcon icon={g === 'Boys' ? faMars : g === 'Girls' ? faVenus : faHandshake} className="w-3 h-3" /> {g}
+              {g === 'Boys' ? '👦' : g === 'Girls' ? '👧' : '🤝'} {g}
             </motion.button>
           ))}
         </div>

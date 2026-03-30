@@ -2,15 +2,8 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight, faTshirt, faBaby, faPuzzlePiece, faPenFancy, faGrid } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import { categories } from '@/data/products';
-
-const categoryIcons = {
-  garments: faTshirt,
-  newborn: faBaby,
-  toys: faPuzzlePiece,
-  stationery: faPenFancy,
-};
 
 const container = {
   hidden: {},
@@ -27,7 +20,7 @@ export default function CategoriesSection() {
       <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }} transition={{ duration: 0.5 }} className="text-center mb-10 sm:mb-14">
         <div className="inline-flex items-center gap-2 bg-purple-100 rounded-full px-4 py-2 mb-4">
-          <FontAwesomeIcon icon={faGrid} className="text-purple-600 w-4 h-4" />
+          <span>🎨</span>
           <span className="text-purple-600 font-black text-sm">Shop by Category</span>
         </div>
         <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-gray-800 mb-3">What are you looking for?</h2>
@@ -50,7 +43,7 @@ export default function CategoriesSection() {
                   <motion.div whileHover={{ rotate: [0, -10, 10, 0], scale: 1.2 }}
                     transition={{ duration: 0.4 }}
                     className="text-4xl sm:text-5xl mb-2 sm:mb-3">
-                    <FontAwesomeIcon icon={categoryIcons[cat.id] || faPuzzlePiece} className="w-8 h-8" />
+                    {cat.emoji}
                   </motion.div>
                   <h3 className="font-display text-lg sm:text-xl md:text-2xl text-white text-center">{cat.name}</h3>
                   <p className="text-white/75 text-[10px] sm:text-xs font-semibold mt-1 hidden sm:block">{cat.count}+ Products</p>

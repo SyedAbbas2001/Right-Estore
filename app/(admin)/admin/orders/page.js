@@ -1,7 +1,9 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { FiArrowLeft, FiSearch, FiEye } from 'react-icons/fi';
+import { motion } from 'framer-motion';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faMagnifyingGlass, faEye, faCheck } from '@fortawesome/free-solid-svg-icons';
 import toast from 'react-hot-toast';
 
 const mockOrders = [
@@ -27,7 +29,7 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState(mockOrders);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selected, setSelected] = useState(null);
 
   const filtered = orders.filter(o => {
     const matchSearch = o.customer.toLowerCase().includes(search.toLowerCase()) || o.id.includes(search);
@@ -36,163 +38,137 @@ export default function AdminOrdersPage() {
   });
 
   const updateStatus = (id, status) => {
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
-    if (selectedOrder?.id === id) setSelectedOrder(prev => ({ ...prev, status }));
-    toast.success(`Order status updated to ${status}`);
+    setOrders(p => p.map(o => o.id === id ? { ...o, status } : o));
+    if (selected?.id === id) setSelected(p => ({ ...p, status }));
+    toast.success(`Status updated to ${status}`);
   };
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-3">
+      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center gap-3">
         <Link href="/admin" className="p-2 rounded-xl hover:bg-gray-100 text-gray-500">
-          <FiArrowLeft className="w-5 h-5" />
+          <FontAwesomeIcon icon={faArrowLeft} className="w-5 h-5" />
         </Link>
         <h1 className="font-display text-2xl text-gray-800">Orders</h1>
-        <span className="bg-pastel-purple text-candy-purple font-bold text-xs px-2 py-1 rounded-full">{orders.length}</span>
+        <span className="bg-purple-100 text-purple-600 font-black text-xs px-2 py-1 rounded-full">{orders.length}</span>
       </div>
 
-      <div className="p-6">
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+      <div className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row gap-3 mb-5">
           <div className="relative flex-1">
-            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search by customer or order ID..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus:outline-none focus:border-candy-purple text-sm font-semibold"
-            />
+            <FontAwesomeIcon icon={faMagnifyingGlass} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input type="text" placeholder="Search by customer or order ID..." value={search} onChange={e => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus:outline-none focus:border-purple-400 text-sm font-semibold" />
           </div>
           <div className="flex gap-2 flex-wrap">
             {['all', ...statuses.map(s => s.toLowerCase())].map(f => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-3 py-2 rounded-xl text-xs font-bold capitalize transition-all ${
-                  filter === f ? 'bg-candy-purple text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
-                }`}
-              >
+              <motion.button key={f} whileTap={{ scale: 0.95 }} onClick={() => setFilter(f)}
+                className={`px-3 py-2 rounded-xl text-xs font-black capitalize transition-all ${filter === f ? 'bg-purple-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}>
                 {f}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* Orders Table */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+          {/* Table */}
           <div className="xl:col-span-2 bg-white rounded-2xl shadow-soft overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wide">
-                <tr>
-                  <th className="text-left px-5 py-3">Order</th>
-                  <th className="text-left px-5 py-3">Customer</th>
-                  <th className="text-left px-5 py-3">Total</th>
-                  <th className="text-left px-5 py-3">Status</th>
-                  <th className="text-left px-5 py-3">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {filtered.map(order => (
-                  <tr
-                    key={order.id}
-                    className={`hover:bg-gray-50 transition-colors cursor-pointer ${selectedOrder?.id === order.id ? 'bg-pastel-purple/30' : ''}`}
-                    onClick={() => setSelectedOrder(order)}
-                  >
-                    <td className="px-5 py-3">
-                      <p className="font-bold text-gray-800 text-sm">#{order.id}</p>
-                      <p className="text-xs text-gray-400">{order.date}</p>
-                    </td>
-                    <td className="px-5 py-3">
-                      <p className="font-semibold text-gray-700 text-sm">{order.customer}</p>
-                      <p className="text-xs text-gray-400">{order.items} items</p>
-                    </td>
-                    <td className="px-5 py-3 font-bold text-candy-purple text-sm">
-                      Rs. {order.total.toLocaleString()}
-                    </td>
-                    <td className="px-5 py-3">
-                      <span className={`badge text-xs ${statusColors[order.status]}`}>{order.status}</span>
-                    </td>
-                    <td className="px-5 py-3">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setSelectedOrder(order); }}
-                        className="p-2 rounded-lg text-candy-purple hover:bg-pastel-purple transition-colors"
-                      >
-                        <FiEye className="w-4 h-4" />
-                      </button>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[500px]">
+                <thead className="bg-gray-50 text-xs font-black text-gray-400 uppercase tracking-wide">
+                  <tr>
+                    <th className="text-left px-5 py-3">Order</th>
+                    <th className="text-left px-5 py-3">Customer</th>
+                    <th className="text-left px-5 py-3">Total</th>
+                    <th className="text-left px-5 py-3">Status</th>
+                    <th className="text-left px-5 py-3">View</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            {filtered.length === 0 && (
-              <div className="text-center py-12">
-                <div className="text-4xl mb-3">📦</div>
-                <p className="font-bold text-gray-500">No orders found</p>
-              </div>
-            )}
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {filtered.map((order, i) => (
+                    <motion.tr key={order.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.05 }}
+                      onClick={() => setSelected(order)}
+                      className={`hover:bg-gray-50 transition-colors cursor-pointer ${selected?.id === order.id ? 'bg-purple-50' : ''}`}>
+                      <td className="px-5 py-3">
+                        <p className="font-bold text-gray-800 text-sm">#{order.id}</p>
+                        <p className="text-xs text-gray-400">{order.date}</p>
+                      </td>
+                      <td className="px-5 py-3">
+                        <p className="font-semibold text-gray-700 text-sm">{order.customer}</p>
+                        <p className="text-xs text-gray-400">{order.items} items</p>
+                      </td>
+                      <td className="px-5 py-3 font-black text-purple-600 text-sm">Rs. {order.total.toLocaleString()}</td>
+                      <td className="px-5 py-3">
+                        <span className={`badge text-[10px] ${statusColors[order.status]}`}>{order.status}</span>
+                      </td>
+                      <td className="px-5 py-3">
+                        <button className="p-2 rounded-lg text-purple-500 hover:bg-purple-50 transition-colors">
+                          <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+              {filtered.length === 0 && (
+                <div className="text-center py-12">
+                  <div className="text-4xl mb-3">📦</div>
+                  <p className="font-bold text-gray-500">No orders found</p>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Order Detail */}
+          {/* Detail panel */}
           <div>
-            {selectedOrder ? (
-              <div className="bg-white rounded-2xl shadow-soft p-5">
+            {selected ? (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-2xl shadow-soft p-5">
                 <div className="flex justify-between items-start mb-5">
                   <div>
-                    <h3 className="font-display text-xl text-gray-800">#{selectedOrder.id}</h3>
-                    <p className="text-gray-400 text-sm font-semibold">{selectedOrder.date}</p>
+                    <h3 className="font-display text-xl text-gray-800">#{selected.id}</h3>
+                    <p className="text-gray-400 text-sm font-semibold">{selected.date}</p>
                   </div>
-                  <span className={`badge ${statusColors[selectedOrder.status]}`}>{selectedOrder.status}</span>
+                  <span className={`badge ${statusColors[selected.status]}`}>{selected.status}</span>
                 </div>
-
-                <div className="space-y-3 mb-5">
+                <div className="space-y-3 mb-5 text-sm">
                   <div>
-                    <p className="text-xs text-gray-400 font-bold uppercase">Customer</p>
-                    <p className="font-bold text-gray-800">{selectedOrder.customer}</p>
-                    <p className="text-sm text-gray-500 font-semibold">{selectedOrder.email}</p>
-                    <p className="text-sm text-gray-500 font-semibold">{selectedOrder.phone}</p>
+                    <p className="text-xs text-gray-400 font-black uppercase">Customer</p>
+                    <p className="font-bold text-gray-800">{selected.customer}</p>
+                    <p className="text-gray-500 font-semibold">{selected.email}</p>
+                    <p className="text-gray-500 font-semibold">{selected.phone}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400 font-bold uppercase">Delivery Address</p>
-                    <p className="font-semibold text-gray-700 text-sm">{selectedOrder.address}</p>
+                    <p className="text-xs text-gray-400 font-black uppercase">Address</p>
+                    <p className="font-semibold text-gray-700">{selected.address}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400 font-bold uppercase">Payment</p>
-                    <p className="font-bold text-gray-700">{selectedOrder.payment}</p>
+                    <p className="text-xs text-gray-400 font-black uppercase">Payment</p>
+                    <p className="font-bold text-gray-700">{selected.payment}</p>
                   </div>
-                  <div className="border-t border-gray-100 pt-3">
-                    <div className="flex justify-between font-bold text-gray-800">
-                      <span>Total ({selectedOrder.items} items)</span>
-                      <span className="text-candy-purple">Rs. {selectedOrder.total.toLocaleString()}</span>
-                    </div>
+                  <div className="border-t border-gray-100 pt-3 flex justify-between font-bold text-gray-800">
+                    <span>Total ({selected.items} items)</span>
+                    <span className="text-purple-600">Rs. {selected.total.toLocaleString()}</span>
                   </div>
                 </div>
-
-                {/* Update Status */}
                 <div>
-                  <p className="text-xs text-gray-400 font-bold uppercase mb-2">Update Status</p>
+                  <p className="text-xs text-gray-400 font-black uppercase mb-2">Update Status</p>
                   <div className="space-y-2">
-                    {statuses.map(status => (
-                      <button
-                        key={status}
-                        onClick={() => updateStatus(selectedOrder.id, status)}
-                        className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                          selectedOrder.status === status
-                            ? 'bg-candy-purple text-white'
-                            : 'bg-gray-50 text-gray-600 hover:bg-pastel-purple hover:text-candy-purple'
-                        }`}
-                      >
-                        {status}
-                      </button>
+                    {statuses.map(s => (
+                      <motion.button key={s} whileTap={{ scale: 0.97 }}
+                        onClick={() => updateStatus(selected.id, s)}
+                        className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-between ${selected.status === s ? 'bg-purple-600 text-white' : 'bg-gray-50 text-gray-600 hover:bg-purple-50 hover:text-purple-700'}`}>
+                        {s}
+                        {selected.status === s && <FontAwesomeIcon icon={faCheck} className="w-3.5 h-3.5" />}
+                      </motion.button>
                     ))}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ) : (
               <div className="bg-white rounded-2xl shadow-soft p-8 text-center">
                 <div className="text-4xl mb-3">👆</div>
-                <p className="font-bold text-gray-500">Click an order to view details</p>
+                <p className="font-bold text-gray-400">Click an order to view details</p>
               </div>
             )}
           </div>

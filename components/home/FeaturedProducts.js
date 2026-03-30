@@ -15,8 +15,8 @@ export default function FeaturedProducts() {
     : products.filter(p => p.category === active && p.isFeatured).slice(0, 8);
 
   const tabs = [
-    { id: 'all', label: 'All' },
-    ...categories.map(c => ({ id: c.slug, label: c.name })),
+    { id: 'all', label: 'All', emoji: '⭐' },
+    ...categories.map(c => ({ id: c.slug, label: c.name, emoji: c.emoji })),
   ];
 
   return (
@@ -42,7 +42,7 @@ export default function FeaturedProducts() {
                   ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-purple-200'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-purple-300 hover:text-purple-600'
               }`}>
-              {tab.label}
+              <span>{tab.emoji}</span>{tab.label}
             </motion.button>
           ))}
         </div>

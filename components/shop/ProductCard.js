@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart as faHeartSolid, faStar, faShoppingCart, faEye, faBolt, faSparkles } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as faHeartSolid, faStar, faShoppingCart, faEye, faBolt } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as faHeartOutline } from '@fortawesome/free-regular-svg-icons';
 import { useCartStore, useWishlistStore } from '@/store';
 
@@ -70,9 +70,7 @@ export default function ProductCard({ product, priority = false }) {
               <span className="badge bg-red-500 text-[10px] shadow-md">-{product.discount}%</span>
             )}
             {product.isNew && !product.badge && (
-              <span className="badge bg-emerald-500 text-[10px] shadow-md">
-                NEW <FontAwesomeIcon icon={faSparkles} className="w-3 h-3 inline-block" />
-              </span>
+              <span className="badge bg-emerald-500 text-[10px] shadow-md">NEW ✨</span>
             )}
           </div>
 

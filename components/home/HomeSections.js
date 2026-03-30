@@ -4,8 +4,7 @@ import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faTruck, faRotateLeft, faShieldHalved, faHeadset, faCertificate,
-  faQuoteLeft, faStar, faGift, faSmile, faCity,
-  faPuzzlePiece, faTshirt, faRocket, faPalette, faBaby, faTrophy
+  faQuoteLeft, faStar
 } from '@fortawesome/free-solid-svg-icons';
 import { stats, testimonials } from '@/data/products';
 
@@ -19,9 +18,7 @@ export function StatsSection() {
               viewport={{ once: true }} transition={{ delay: i * 0.1, type: 'spring', stiffness: 200 }}
               className="text-white">
               <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 3 + i, repeat: Infinity }}
-                className="text-3xl sm:text-4xl mb-2">
-                <FontAwesomeIcon icon={stat.icon === 'faGift' ? faGift : stat.icon === 'faStar' ? faStar : stat.icon === 'faCity' ? faCity : faSmile} className="w-8 h-8" />
-              </motion.div>
+                className="text-3xl sm:text-4xl mb-2">{stat.emoji}</motion.div>
               <div className="font-display text-3xl sm:text-4xl md:text-5xl text-white mb-1">{stat.value}</div>
               <div className="text-white/80 font-bold text-xs sm:text-sm">{stat.label}</div>
             </motion.div>
@@ -142,23 +139,12 @@ export function TrustBadges() {
 }
 
 export function MarqueeBanner() {
-  const items = [
-    { icon: faPuzzlePiece, label: 'New Arrivals' },
-    { icon: faTshirt, label: 'Kids Fashion' },
-    { icon: faGift, label: 'Best Gifts' },
-    { icon: faRocket, label: 'Free Shipping' },
-    { icon: faStar, label: 'Top Rated' },
-    { icon: faPalette, label: 'Art & Craft' },
-    { icon: faBaby, label: 'Baby Essentials' },
-    { icon: faTrophy, label: 'Award Winners' },
-  ];
+  const items = ['🧸 New Arrivals', '👗 Kids Fashion', '🎁 Best Gifts', '🚀 Free Shipping', '⭐ Top Rated', '🎨 Art & Craft', '👶 Baby Essentials', '🏆 Award Winners'];
   return (
     <div className="bg-gradient-to-r from-pink-500 to-purple-600 py-3 overflow-hidden">
       <div className="marquee-track animate-marquee">
         {[...items, ...items].map((item, i) => (
-          <span key={i} className="text-white font-black text-sm mx-6 whitespace-nowrap flex items-center gap-2">
-            <FontAwesomeIcon icon={item.icon} className="w-4 h-4" /> {item.label}
-          </span>
+          <span key={i} className="text-white font-black text-sm mx-6 whitespace-nowrap">{item}</span>
         ))}
       </div>
     </div>
