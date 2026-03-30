@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faTruck, faRotateLeft, faShieldHalved, faHeadset, faCertificate,
@@ -11,8 +11,16 @@ import { testimonials } from '@/data/products';
 
 function AnimatedCount({ target, suffix }) {
   const [count, setCount] = useState(0);
+  const [started, setStarted] = useState(false);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.25 });
 
   useEffect(() => {
+    if (isInView) setStarted(true);
+  }, [isInView]);
+
+  useEffect(() => {
+    if (!started) return;
     let start = 0;
     const duration = 1300;
     const stepTime = Math.max(Math.floor(duration / (target || 1)), 20);
@@ -28,9 +36,10 @@ function AnimatedCount({ target, suffix }) {
     }, stepTime);
 
     return () => clearInterval(timer);
-  }, [target]);
+  }, [started, target]);
 
-  return <>{count.toLocaleString()}{suffix}</>;
+  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
+
 }
 
 const statsWithIcons = [

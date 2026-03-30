@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInstagram, faFacebook, faTwitter, faYoutube, faTiktok } from '@fortawesome/free-brands-svg-icons';
-import { faPhone, faEnvelope, faLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { faPhone, faEnvelope, faLocationDot, faStore } from '@fortawesome/free-solid-svg-icons';
 
 const links = {
   shop: [
@@ -62,8 +62,10 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-2 lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-xl">🧸</div>
-              <span className="font-display text-2xl">Kiddy<span className="text-pink-400">Shop</span></span>
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-xl">
+                <FontAwesomeIcon icon={faStore} className="text-white w-5 h-5" />
+              </div>
+              <span className="font-display text-2xl">Right <span className="text-pink-400">Estore</span></span>
             </div>
             <p className="text-gray-400 font-semibold text-sm leading-relaxed mb-5">
               Making childhood magical, one product at a time. Quality kids' clothing, toys and essentials delivered across Pakistan.
