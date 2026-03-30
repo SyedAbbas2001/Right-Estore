@@ -1,6 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'via.placeholder.com' },
+      { protocol: 'https', hostname: 'picsum.photos' },
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
+    ],
+  },
+  experimental: {
+    serverActions: { allowedOrigins: ['localhost:3000'] },
+  },
 };
 
 export default nextConfig;
