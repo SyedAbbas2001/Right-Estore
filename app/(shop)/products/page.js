@@ -3,7 +3,7 @@ import { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGrid2, faList, faFilter, faChevronDown, faXmark, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { faGrip, faList, faFilter, faChevronDown, faXmark, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import ProductCard from '@/components/shop/ProductCard';
 import ProductFilters from '@/components/shop/ProductFilters';
 import { products, categories } from '@/data/products';
@@ -109,7 +109,7 @@ function ProductsContent() {
                 <div className="flex border border-gray-200 rounded-xl overflow-hidden">
                   <motion.button whileTap={{ scale: 0.9 }} onClick={() => setGrid(true)}
                     className={`p-2 ${grid ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-gray-600'}`}>
-                    <FontAwesomeIcon icon={faGrid2} className="w-4 h-4" />
+                    <FontAwesomeIcon icon={faGrip} className="w-4 h-4" />
                   </motion.button>
                   <motion.button whileTap={{ scale: 0.9 }} onClick={() => setGrid(false)}
                     className={`p-2 ${!grid ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-gray-600'}`}>
