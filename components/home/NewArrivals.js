@@ -6,6 +6,7 @@ import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 export default function NewArrivals({ initialProducts = [] }) {
   // Only include products where isNew is true
   const newProducts = initialProducts.filter(p => p.isNew);
+  console.log("New arrivals:", newProducts);
 
   if (newProducts.length === 0) return null;
 
