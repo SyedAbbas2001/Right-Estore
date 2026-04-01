@@ -1,49 +1,65 @@
 import { NextResponse } from 'next/server';
-import { v4 as uuidv4 } from 'uuid';
+import connectDB from '@/lib/db';
+import Order from '@/lib/models/Order';
+import { getUserFromRequest } from '@/lib/auth';
 
-// In-memory store for demo (replace with MongoDB in production)
-const orders = [];
+function generateOrderId() {
+  return 'RE' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,5).toUpperCase();
+}
 
 export async function GET(request) {
-  const { searchParams } = new URL(request.url);
-  const userId = searchParams.get('userId');
+  try {
+    const user = await getUserFromRequest(request);
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const userOrders = userId ? orders.filter(o => o.userId === userId) : orders;
+    await connectDB();
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
 
-  return NextResponse.json({ orders: userOrders });
+    const query = user.role === 'admin' ? {} : { userId: user.id };
+    if (status && status !== 'all') query.orderStatus = status;
+
+    const orders = await Order.find(query).sort({ createdAt: -1 });
+    return NextResponse.json({ orders });
+  } catch (error) {
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  }
 }
 
 export async function POST(request) {
   try {
+    await connectDB();
     const body = await request.json();
-    const { items, shippingAddress, paymentMethod, userId } = body;
+    const { items, shippingAddress, paymentMethod = 'cod', couponCode, notes } = body;
 
-    if (!items || items.length === 0) {
-      return NextResponse.json({ error: 'No items in order' }, { status: 400 });
+    if (!items || !items.length) return NextResponse.json({ error: 'No items' }, { status: 400 });
+    if (!shippingAddress?.firstName || !shippingAddress?.email) {
+      return NextResponse.json({ error: 'Shipping address incomplete' }, { status: 400 });
     }
 
-    const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const shipping = subtotal >= 2000 ? 0 : 150;
-    const total = subtotal + shipping;
+    const user = await getUserFromRequest(request);
+    const subtotal = items.reduce((a, i) => a + i.price * i.quantity, 0);
+    const shippingFee = subtotal >= 2000 ? 0 : 150;
+    const total = subtotal + shippingFee;
 
-    const order = {
-      id: `KS${uuidv4().slice(0, 6).toUpperCase()}`,
-      userId: userId || 'guest',
+    const order = await Order.create({
+      orderId: generateOrderId(),
+      userId: user?.id || 'guest',
+      customerName: shippingAddress.firstName + ' ' + shippingAddress.lastName,
+      customerEmail: shippingAddress.email,
       items,
       shippingAddress,
       paymentMethod,
       subtotal,
-      shipping,
+      shippingFee,
       total,
-      status: 'Pending',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    orders.push(order);
+      couponCode: couponCode || '',
+      notes: notes || '',
+    });
 
     return NextResponse.json({ order, message: 'Order placed successfully!' }, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
+    console.error(error);
+    return NextResponse.json({ error: 'Failed to place order' }, { status: 500 });
   }
 }

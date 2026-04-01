@@ -4,11 +4,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faTruck, faCreditCard, faMoneyBill, faCheck,
-  faShieldHalved, faChevronRight, faMinus, faPlus, faLock
-} from '@fortawesome/free-solid-svg-icons';
-import { useCartStore } from '@/store';
+import { faTruck, faMoneyBill, faCheck, faShieldHalved, faLock } from '@fortawesome/free-solid-svg-icons';
+import { useCartStore, useAuthStore } from '@/store';
 import toast from 'react-hot-toast';
 
 const steps = ['Cart', 'Information', 'Payment', 'Confirm'];
@@ -16,22 +13,21 @@ const steps = ['Cart', 'Information', 'Payment', 'Confirm'];
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, clearCart } = useCartStore();
-  const [step, setStep] = useState(1);
-  const [payMethod, setPayMethod] = useState('cod');
+  const { token, user } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', phone: '',
-    address: '', city: '', province: '', postalCode: '', saveAddress: false,
+    firstName: user?.name?.split(' ')[0] || '',
+    lastName: user?.name?.split(' ')[1] || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    address: '', city: '', province: '', postalCode: '',
   });
 
   const total = items.reduce((a, i) => a + i.price * i.quantity, 0);
   const shipping = total >= 2000 ? 0 : 150;
   const grand = total + shipping;
 
-  const inp = e => {
-    const { name, value, type, checked } = e.target;
-    setForm(f => ({ ...f, [name]: type === 'checkbox' ? checked : value }));
-  };
+  const inp = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
   const placeOrder = async () => {
     if (!form.firstName || !form.email || !form.phone || !form.address || !form.city) {
@@ -39,10 +35,37 @@ export default function CheckoutPage() {
       return;
     }
     setLoading(true);
-    await new Promise(r => setTimeout(r, 2000));
-    const orderId = 'KS' + Date.now().toString().slice(-6);
-    clearCart();
-    router.push(`/order-confirmation?orderId=${orderId}&method=${payMethod}`);
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: JSON.stringify({
+          items: items.map(i => ({
+            productId: i._id || i.id,
+            name: i.name,
+            price: i.price,
+            quantity: i.quantity,
+            size: i.size || '',
+            color: i.color || '',
+            image: i.images?.[0] || '',
+          })),
+          shippingAddress: { ...form },
+          paymentMethod: 'cod',
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Order failed');
+
+      clearCart();
+      router.push(`/order-confirmation?orderId=${data.order.orderId}&method=cod`);
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (items.length === 0) {
@@ -60,29 +83,21 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-6 sm:py-10">
       <div className="max-w-6xl mx-auto px-4">
-        {/* Logo + Steps */}
+        {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="font-display text-3xl text-gray-800">
-            Kiddy<span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-600">Shop</span>
+            Right <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-600">Estore</span>
           </Link>
-
           <div className="flex items-center justify-center gap-1 sm:gap-2 mt-6">
             {steps.map((s, i) => (
               <div key={s} className="flex items-center">
-                <div className={`flex items-center gap-1.5 ${i <= step ? 'text-purple-600' : 'text-gray-400'}`}>
-                  <motion.div animate={{ scale: i === step ? 1.1 : 1 }}
-                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-black transition-all ${
-                      i < step ? 'bg-purple-600 text-white' :
-                      i === step ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-purple-300' :
-                      'bg-gray-200 text-gray-500'
-                    }`}>
-                    {i < step ? <FontAwesomeIcon icon={faCheck} className="w-3 h-3" /> : i + 1}
-                  </motion.div>
+                <div className={`flex items-center gap-1.5 ${i <= 1 ? 'text-purple-600' : 'text-gray-400'}`}>
+                  <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-black ${i < 1 ? 'bg-purple-600 text-white' : i === 1 ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg' : 'bg-gray-200 text-gray-500'}`}>
+                    {i < 1 ? <FontAwesomeIcon icon={faCheck} className="w-3 h-3" /> : i + 1}
+                  </div>
                   <span className="text-xs font-bold hidden sm:block">{s}</span>
                 </div>
-                {i < steps.length - 1 && (
-                  <div className={`w-6 sm:w-12 h-0.5 mx-1 sm:mx-2 transition-colors ${i < step ? 'bg-purple-500' : 'bg-gray-200'}`} />
-                )}
+                {i < steps.length - 1 && <div className={`w-6 sm:w-12 h-0.5 mx-1 sm:mx-2 ${i < 1 ? 'bg-purple-500' : 'bg-gray-200'}`} />}
               </div>
             ))}
           </div>
@@ -117,7 +132,7 @@ export default function CheckoutPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-black text-gray-600 mb-2 uppercase tracking-wide">Street Address *</label>
-                  <input name="address" value={form.address} onChange={inp} placeholder="House #, Street, Area" className="input-field" />
+                  <input name="address" value={form.address} onChange={inp} placeholder="House #, Street, Area" className="input-field" required />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -133,66 +148,28 @@ export default function CheckoutPage() {
                     <label className="block text-xs font-black text-gray-600 mb-2 uppercase tracking-wide">Province</label>
                     <select name="province" value={form.province} onChange={inp} className="input-field">
                       <option value="">Select Province</option>
-                      {['Sindh','Punjab','KPK','Balochistan','ICT'].map(p => (
-                        <option key={p} value={p}>{p}</option>
-                      ))}
+                      {['Sindh','Punjab','KPK','Balochistan','ICT'].map(p => <option key={p} value={p}>{p}</option>)}
                     </select>
                   </div>
                 </div>
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input type="checkbox" name="saveAddress" checked={form.saveAddress} onChange={inp} className="w-4 h-4 accent-purple-600" />
-                  <span className="text-sm font-bold text-gray-700">Save this address for future orders</span>
-                </label>
               </div>
             </motion.div>
 
-            {/* Payment */}
+            {/* Payment — COD only */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
               className="bg-white rounded-3xl p-5 sm:p-6 shadow-soft">
               <h2 className="font-display text-xl sm:text-2xl text-gray-800 mb-5">Payment Method</h2>
-              <div className="space-y-3">
-                {[
-                  { val: 'cod', icon: faMoneyBill, label: 'Cash on Delivery', sub: 'Pay when your order arrives', iconBg: 'bg-green-100 text-green-600' },
-                  { val: 'card', icon: faCreditCard, label: 'Credit / Debit Card', sub: 'Visa, Mastercard, JazzCash, EasyPaisa', iconBg: 'bg-blue-100 text-blue-600' },
-                ].map(({ val, icon, label, sub, iconBg }) => (
-                  <motion.label key={val} whileHover={{ scale: 1.01 }}
-                    className={`flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all ${payMethod === val ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                    <input type="radio" name="pay" value={val} checked={payMethod === val} onChange={() => setPayMethod(val)} className="accent-purple-600" />
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}>
-                      <FontAwesomeIcon icon={icon} className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-black text-gray-800 text-sm">{label}</p>
-                      <p className="text-xs text-gray-400 font-semibold">{sub}</p>
-                    </div>
-                    {payMethod === val && (
-                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
-                        className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-white flex-shrink-0">
-                        <FontAwesomeIcon icon={faCheck} className="w-3 h-3" />
-                      </motion.div>
-                    )}
-                  </motion.label>
-                ))}
-
-                <AnimatePresence>
-                  {payMethod === 'card' && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                      <div className="pt-3 space-y-3">
-                        <input type="text" placeholder="Card Number" className="input-field text-sm" maxLength={19} />
-                        <div className="grid grid-cols-2 gap-3">
-                          <input type="text" placeholder="MM / YY" className="input-field text-sm" />
-                          <input type="text" placeholder="CVV" className="input-field text-sm" maxLength={3} />
-                        </div>
-                        <input type="text" placeholder="Cardholder Name" className="input-field text-sm" />
-                        <div className="flex items-center gap-2 text-xs text-gray-400 font-semibold">
-                          <FontAwesomeIcon icon={faLock} className="w-3 h-3" />
-                          Secured by Stripe. Your card info is safe.
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+              <div className="flex items-center gap-4 p-4 rounded-2xl border-2 border-purple-500 bg-purple-50">
+                <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
+                  <FontAwesomeIcon icon={faMoneyBill} className="w-5 h-5 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-black text-gray-800">Cash on Delivery</p>
+                  <p className="text-xs text-gray-400 font-semibold">Pay when your order arrives at your door</p>
+                </div>
+                <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center">
+                  <FontAwesomeIcon icon={faCheck} className="w-3 h-3 text-white" />
+                </div>
               </div>
             </motion.div>
           </div>
@@ -203,7 +180,7 @@ export default function CheckoutPage() {
               className="bg-white rounded-3xl p-5 sm:p-6 shadow-soft sticky top-24">
               <h2 className="font-display text-xl sm:text-2xl text-gray-800 mb-5">Order Summary</h2>
 
-              <div className="space-y-3 mb-5 max-h-64 overflow-y-auto scrollbar-hide">
+              <div className="space-y-3 mb-5 max-h-60 overflow-y-auto scrollbar-hide">
                 {items.map(item => (
                   <div key={item.cartId} className="flex gap-3">
                     <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-gray-50 flex-shrink-0">
@@ -236,16 +213,14 @@ export default function CheckoutPage() {
               <motion.button onClick={placeOrder} disabled={loading}
                 whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                 className="btn-primary w-full mt-5 py-4 justify-center text-base disabled:opacity-70">
-                {loading ? (
-                  <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Placing Order...</>
-                ) : (
-                  <><FontAwesomeIcon icon={faTruck} className="w-4 h-4" /> Place Order — Rs. {grand.toLocaleString()}</>
-                )}
+                {loading
+                  ? <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />Placing Order...</>
+                  : <><FontAwesomeIcon icon={faTruck} className="w-4 h-4 mr-2" />Place Order — Rs. {grand.toLocaleString()}</>}
               </motion.button>
 
               <div className="flex items-center justify-center gap-2 mt-3">
                 <FontAwesomeIcon icon={faShieldHalved} className="w-3 h-3 text-gray-400" />
-                <p className="text-xs text-gray-400 font-semibold">100% Secure & Encrypted Checkout</p>
+                <p className="text-xs text-gray-400 font-semibold">Your data is safe & secure</p>
               </div>
             </motion.div>
           </div>

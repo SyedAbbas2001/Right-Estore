@@ -1,70 +1,25 @@
 'use client';
 import Link from 'next/link';
-import { useState, useEffect, useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faTruck, faRotateLeft, faShieldHalved, faHeadset, faCertificate,
-  faQuoteLeft, faStar, faSmile, faBoxOpen, faCity, faLightbulb
+  faQuoteLeft, faStar
 } from '@fortawesome/free-solid-svg-icons';
-import { testimonials } from '@/data/products';
-
-function AnimatedCount({ target, suffix }) {
-  const [count, setCount] = useState(0);
-  const [started, setStarted] = useState(false);
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.25 });
-
-  useEffect(() => {
-    if (isInView) setStarted(true);
-  }, [isInView]);
-
-  useEffect(() => {
-    if (!started) return;
-    let start = 0;
-    const duration = 1300;
-    const stepTime = Math.max(Math.floor(duration / (target || 1)), 20);
-    const increment = Math.max(target / (duration / stepTime), 1);
-    const timer = setInterval(() => {
-      start += increment;
-      if (start >= target) {
-        setCount(target);
-        clearInterval(timer);
-      } else {
-        setCount(Math.floor(start));
-      }
-    }, stepTime);
-
-    return () => clearInterval(timer);
-  }, [started, target]);
-
-  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
-
-}
-
-const statsWithIcons = [
-  { label: 'Happy Kids', value: 50000, suffix: '+', icon: faSmile },
-  { label: 'Products', value: 500, suffix: '+', icon: faBoxOpen },
-  { label: 'Brands', value: 100, suffix: '+', icon: faLightbulb },
-  { label: 'Cities', value: 200, suffix: '+', icon: faCity },
-];
+import { stats, testimonials } from '@/data/products';
 
 export function StatsSection() {
   return (
     <section className="py-14 sm:py-16 gradient-animate">
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 text-center">
-          {statsWithIcons.map((stat, i) => (
+          {stats.map((stat, i) => (
             <motion.div key={i} initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }} transition={{ delay: i * 0.1, type: 'spring', stiffness: 200 }}
               className="text-white">
-              <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 2.5, repeat: Infinity }}
-                className="text-3xl sm:text-4xl mb-2">
-                <FontAwesomeIcon icon={stat.icon} className="mx-auto w-10 h-10" />
-              </motion.div>
-              <div className="font-display text-3xl sm:text-4xl md:text-5xl text-white mb-1">
-                <AnimatedCount target={stat.value} suffix={stat.suffix} />
-              </div>
+              <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 3 + i, repeat: Infinity }}
+                className="text-3xl sm:text-4xl mb-2">{stat.emoji}</motion.div>
+              <div className="font-display text-3xl sm:text-4xl md:text-5xl text-white mb-1">{stat.value}</div>
               <div className="text-white/80 font-bold text-xs sm:text-sm">{stat.label}</div>
             </motion.div>
           ))}

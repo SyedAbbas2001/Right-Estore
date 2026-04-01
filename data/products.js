@@ -120,7 +120,7 @@ export const products = [
     badge: 'Hot',
     badgeColor: 'bg-candy-orange',
     images: [
-      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&h=600&fit=crop',
       'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=600&fit=crop',
     ],
     description: 'A super cozy star-print hoodie that kids will want to wear every day! Made from a warm cotton blend with a soft fleece lining.',

@@ -1,43 +1,71 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faPlus, faPenToSquare, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
-import { categories } from '@/data/products';
+import { faArrowLeft, faPlus, faPenToSquare, faTrash, faXmark, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { useAuthStore } from '@/store';
 import toast from 'react-hot-toast';
 
 export default function AdminCategoriesPage() {
-  const [catList, setCatList] = useState(categories);
+  const { token } = useAuthStore();
+  const [catList, setCatList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editCat, setEditCat] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ name: '', description: '', emoji: '🎁', color: 'from-pink-400 to-rose-400' });
 
-  const handleDelete = id => {
-    if (confirm('Delete this category?')) {
-      setCatList(p => p.filter(c => c.id !== id));
+  const authHeaders = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+
+  useEffect(() => { fetchCategories(); }, []);
+
+  const fetchCategories = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/categories');
+      const data = await res.json();
+      setCatList(data.categories || []);
+    } catch { toast.error('Failed to load categories'); }
+    finally { setLoading(false); }
+  };
+
+  const handleDelete = async (cat) => {
+    if (!confirm(`Delete "${cat.name}"?`)) return;
+    try {
+      const res = await fetch(`/api/categories/${cat._id}`, { method: 'DELETE', headers: authHeaders });
+      if (!res.ok) throw new Error('Delete failed');
       toast.success('Category deleted');
-    }
+      setCatList(p => p.filter(c => c._id !== cat._id));
+    } catch { toast.error('Delete failed'); }
   };
 
   const handleEdit = cat => {
     setEditCat(cat);
-    setForm({ name: cat.name, description: cat.description, emoji: cat.emoji, color: cat.color });
+    setForm({ name: cat.name, description: cat.description || '', emoji: cat.emoji, color: cat.color });
     setShowForm(true);
   };
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    if (editCat) {
-      setCatList(p => p.map(c => c.id === editCat.id ? { ...c, ...form } : c));
-      toast.success('Category updated!');
-    } else {
-      setCatList(p => [...p, { id: `cat-${Date.now()}`, slug: form.name.toLowerCase().replace(/\s+/g, '-'), count: 0, bg: 'bg-purple-50', image: '', ...form }]);
-      toast.success('Category added!');
-    }
-    setShowForm(false);
-    setEditCat(null);
-    setForm({ name: '', description: '', emoji: '🎁', color: 'from-pink-400 to-rose-400' });
+    if (!form.name) { toast.error('Name is required'); return; }
+    setSaving(true);
+    try {
+      let res;
+      if (editCat) {
+        res = await fetch(`/api/categories/${editCat._id}`, { method: 'PUT', headers: authHeaders, body: JSON.stringify(form) });
+      } else {
+        res = await fetch('/api/categories', { method: 'POST', headers: authHeaders, body: JSON.stringify(form) });
+      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      toast.success(editCat ? 'Category updated! ✅' : 'Category added! ✅');
+      setShowForm(false);
+      setEditCat(null);
+      setForm({ name: '', description: '', emoji: '🎁', color: 'from-pink-400 to-rose-400' });
+      fetchCategories();
+    } catch (err) { toast.error(err.message); }
+    finally { setSaving(false); }
   };
 
   return (
@@ -48,48 +76,54 @@ export default function AdminCategoriesPage() {
             <FontAwesomeIcon icon={faArrowLeft} className="w-5 h-5" />
           </Link>
           <h1 className="font-display text-2xl text-gray-800">Categories</h1>
+          <span className="bg-purple-100 text-purple-600 font-black text-xs px-2 py-1 rounded-full">{catList.length}</span>
         </div>
         <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-          onClick={() => { setShowForm(true); setEditCat(null); }} className="btn-primary text-sm flex items-center gap-2">
+          onClick={() => { setShowForm(true); setEditCat(null); setForm({ name: '', description: '', emoji: '🎁', color: 'from-pink-400 to-rose-400' }); }}
+          className="btn-primary text-sm flex items-center gap-2">
           <FontAwesomeIcon icon={faPlus} className="w-3.5 h-3.5" /> Add Category
         </motion.button>
       </div>
 
       <div className="p-4 sm:p-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
-          {catList.map((cat, i) => (
-            <motion.div key={cat.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
-              className="bg-white rounded-3xl shadow-soft overflow-hidden group">
-              <div className={`h-28 bg-gradient-to-br ${cat.color} flex items-center justify-center text-5xl relative`}>
-                {cat.emoji}
-                <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => handleEdit(cat)} className="w-8 h-8 rounded-xl bg-white/90 flex items-center justify-center text-blue-500 hover:bg-white">
-                    <FontAwesomeIcon icon={faPenToSquare} className="w-3.5 h-3.5" />
-                  </button>
-                  <button onClick={() => handleDelete(cat.id)} className="w-8 h-8 rounded-xl bg-white/90 flex items-center justify-center text-red-400 hover:bg-white">
-                    <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
-                  </button>
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <FontAwesomeIcon icon={faSpinner} className="w-8 h-8 text-purple-500 animate-spin" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
+            {catList.map((cat, i) => (
+              <motion.div key={cat._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
+                className="bg-white rounded-3xl shadow-soft overflow-hidden group">
+                <div className={`h-28 bg-gradient-to-br ${cat.color} flex items-center justify-center text-5xl relative`}>
+                  {cat.emoji}
+                  <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => handleEdit(cat)} className="w-8 h-8 rounded-xl bg-white/90 flex items-center justify-center text-blue-500 hover:bg-white shadow-md">
+                      <FontAwesomeIcon icon={faPenToSquare} className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={() => handleDelete(cat)} className="w-8 h-8 rounded-xl bg-white/90 flex items-center justify-center text-red-400 hover:bg-white shadow-md">
+                      <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <div className="p-4">
-                <h3 className="font-display text-xl text-gray-800 mb-1">{cat.name}</h3>
-                <p className="text-xs text-gray-500 font-semibold mb-3">{cat.description}</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-purple-600 bg-purple-100 px-2 py-1 rounded-lg">{cat.count}+ Products</span>
-                  <span className="text-xs text-gray-400 font-semibold">/{cat.slug}</span>
+                <div className="p-4">
+                  <h3 className="font-display text-xl text-gray-800 mb-1">{cat.name}</h3>
+                  <p className="text-xs text-gray-500 font-semibold mb-3">{cat.description}</p>
+                  <span className="text-xs font-black text-purple-600 bg-purple-100 px-2 py-1 rounded-lg">/{cat.slug}</span>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
 
-          <button onClick={() => { setShowForm(true); setEditCat(null); }}
-            className="border-2 border-dashed border-gray-300 rounded-3xl h-48 flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-purple-500 hover:text-purple-500 transition-colors">
-            <FontAwesomeIcon icon={faPlus} className="w-8 h-8" />
-            <span className="font-bold text-sm">Add Category</span>
-          </button>
-        </div>
+            <button onClick={() => { setShowForm(true); setEditCat(null); setForm({ name: '', description: '', emoji: '🎁', color: 'from-pink-400 to-rose-400' }); }}
+              className="border-2 border-dashed border-gray-300 rounded-3xl h-48 flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-purple-500 hover:text-purple-500 transition-colors">
+              <FontAwesomeIcon icon={faPlus} className="w-8 h-8" />
+              <span className="font-bold text-sm">Add Category</span>
+            </button>
+          </div>
+        )}
       </div>
 
+      {/* Form Modal */}
       {showForm && (
         <>
           <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setShowForm(false)} />
@@ -105,16 +139,19 @@ export default function AdminCategoriesPage() {
               <form onSubmit={handleSubmit} className="p-5 space-y-4">
                 <div>
                   <label className="block text-xs font-black text-gray-500 uppercase mb-2">Category Name *</label>
-                  <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="input-field" placeholder="e.g. Accessories" required />
+                  <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    className="input-field" placeholder="e.g. Accessories" required />
                 </div>
                 <div>
                   <label className="block text-xs font-black text-gray-500 uppercase mb-2">Description</label>
-                  <input type="text" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className="input-field" placeholder="Short description" />
+                  <input type="text" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                    className="input-field" placeholder="Short description" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-black text-gray-500 uppercase mb-2">Emoji</label>
-                    <input type="text" value={form.emoji} onChange={e => setForm(f => ({ ...f, emoji: e.target.value }))} className="input-field text-2xl" placeholder="🎁" maxLength={2} />
+                    <input type="text" value={form.emoji} onChange={e => setForm(f => ({ ...f, emoji: e.target.value }))}
+                      className="input-field text-2xl text-center" placeholder="🎁" maxLength={2} />
                   </div>
                   <div>
                     <label className="block text-xs font-black text-gray-500 uppercase mb-2">Gradient</label>
@@ -124,12 +161,21 @@ export default function AdminCategoriesPage() {
                       <option value="from-blue-400 to-cyan-400">Blue → Cyan</option>
                       <option value="from-yellow-400 to-amber-400">Yellow → Amber</option>
                       <option value="from-green-400 to-emerald-400">Green → Emerald</option>
+                      <option value="from-orange-400 to-red-400">Orange → Red</option>
                     </select>
                   </div>
                 </div>
+                {/* Preview */}
+                <div className={`h-20 rounded-2xl bg-gradient-to-br ${form.color} flex items-center justify-center gap-3`}>
+                  <span className="text-3xl">{form.emoji}</span>
+                  <span className="font-display text-xl text-white">{form.name || 'Preview'}</span>
+                </div>
                 <div className="flex gap-3 pt-2">
                   <button type="button" onClick={() => setShowForm(false)} className="flex-1 btn-outline">Cancel</button>
-                  <button type="submit" className="flex-1 btn-primary justify-center">{editCat ? 'Update' : 'Add'} Category</button>
+                  <motion.button type="submit" disabled={saving} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+                    className="flex-1 btn-primary justify-center disabled:opacity-70 flex items-center gap-2">
+                    {saving ? <><FontAwesomeIcon icon={faSpinner} className="w-4 h-4 animate-spin" />Saving...</> : `${editCat ? 'Update' : 'Add'} Category`}
+                  </motion.button>
                 </div>
               </form>
             </motion.div>

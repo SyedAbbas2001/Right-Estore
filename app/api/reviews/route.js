@@ -1,54 +1,34 @@
 import { NextResponse } from 'next/server';
-import { reviews } from '@/data/products';
-
-const allReviews = [...reviews];
-
-export async function GET(request) {
-  const { searchParams } = new URL(request.url);
-  const productId = searchParams.get('productId');
-
-  const result = productId
-    ? allReviews.filter(r => r.productId === productId)
-    : allReviews;
-
-  const avgRating = result.length
-    ? result.reduce((acc, r) => acc + r.rating, 0) / result.length
-    : 0;
-
-  return NextResponse.json({
-    reviews: result,
-    count: result.length,
-    avgRating: Math.round(avgRating * 10) / 10,
-  });
-}
+import connectDB from '@/lib/db';
+import Product from '@/lib/models/Product';
+import { getUserFromRequest } from '@/lib/auth';
 
 export async function POST(request) {
   try {
-    const body = await request.json();
-    const { productId, userId, userName, rating, title, comment } = body;
+    const user = await getUserFromRequest(request);
+    if (!user) return NextResponse.json({ error: 'Please login to review' }, { status: 401 });
 
-    if (!productId || !rating || !comment) {
-      return NextResponse.json({ error: 'Required fields missing' }, { status: 400 });
+    await connectDB();
+    const { slug, rating, title, comment } = await request.json();
+
+    if (!slug || !rating || !comment) {
+      return NextResponse.json({ error: 'Slug, rating and comment required' }, { status: 400 });
     }
 
-    const review = {
-      id: `r${Date.now()}`,
-      productId,
-      userId: userId || 'anonymous',
-      userName: userName || 'Anonymous',
-      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(userName || 'User')}&background=C084FC&color=fff`,
-      rating,
-      title: title || '',
-      comment,
-      date: new Date().toLocaleDateString('en-PK'),
-      helpful: 0,
-      verified: false,
-    };
+    const product = await Product.findOne({ slug });
+    if (!product) return NextResponse.json({ error: 'Product not found' }, { status: 404 });
 
-    allReviews.push(review);
+    // Check if already reviewed
+    const alreadyReviewed = product.reviews.find(r => r.userId?.toString() === user.id);
+    if (alreadyReviewed) {
+      return NextResponse.json({ error: 'You already reviewed this product' }, { status: 409 });
+    }
 
-    return NextResponse.json({ review, message: 'Review submitted!' }, { status: 201 });
+    product.reviews.push({ userId: user.id, userName: user.name, rating, title, comment, verified: true });
+    await product.save();
+
+    return NextResponse.json({ message: 'Review submitted!', reviews: product.reviews }, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to submit review' }, { status: 500 });
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

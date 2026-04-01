@@ -1,11 +1,10 @@
 import Link from 'next/link';
 import ProductCard from '@/components/shop/ProductCard';
-import { products } from '@/data/products';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight, faSparkles } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
-export default function NewArrivals() {
-  const newProducts = products.filter(p => p.isNew).slice(0, 4);
+export default function NewArrivals({ initialProducts = [] }) {
+  if (initialProducts.length === 0) return null;
   return (
     <section className="py-14 sm:py-20 px-4 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-8 sm:mb-10">
@@ -21,9 +20,9 @@ export default function NewArrivals() {
         </Link>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5">
-        {newProducts.map((product, i) => (
-          <div key={product.id} className="animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>
-            <ProductCard product={product} />
+        {initialProducts.map((product, i) => (
+          <div key={product._id || product.id} className="animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>
+            <ProductCard product={{ ...product, id: product._id || product.id }} />
           </div>
         ))}
       </div>

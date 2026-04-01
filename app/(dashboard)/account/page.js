@@ -1,24 +1,22 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUser, faBoxOpen, faLocationDot, faShieldHalved, faRightFromBracket,
-  faPenToSquare, faCheck, faPlus, faTrash
+  faPenToSquare, faCheck, faPlus, faSpinner
 } from '@fortawesome/free-solid-svg-icons';
-
-const orders = [
-  { id: 'KS123456', date: '2024-11-20', status: 'Delivered', total: 5698, items: 3 },
-  { id: 'KS123455', date: '2024-11-10', status: 'Processing', total: 2799, items: 1 },
-  { id: 'KS123454', date: '2024-10-28', status: 'Delivered', total: 4297, items: 2 },
-];
+import { useAuthStore } from '@/store';
+import toast from 'react-hot-toast';
 
 const statusColors = {
   Delivered: 'bg-green-100 text-green-700',
   Processing: 'bg-amber-100 text-amber-700',
   Shipped: 'bg-blue-100 text-blue-700',
   Cancelled: 'bg-red-100 text-red-700',
+  Pending: 'bg-gray-100 text-gray-600',
 };
 
 const tabs = [
@@ -29,35 +27,101 @@ const tabs = [
 ];
 
 export default function AccountPage() {
+  const router = useRouter();
+  const { user, token, setUser, logout, clearAuth } = useAuthStore();
   const [activeTab, setActiveTab] = useState('profile');
   const [edit, setEdit] = useState(false);
-  const [profile, setProfile] = useState({
-    name: 'Sara Ahmed', email: 'sara@example.com', phone: '+92 321 1234567', dob: '1990-05-15',
-  });
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [profile, setProfile] = useState({ name: '', email: '', phone: '' });
+  const [passwords, setPasswords] = useState({ current: '', newPass: '', confirm: '' });
+
+  useEffect(() => {
+    if (!user) { router.push('/login'); return; }
+    setProfile({ name: user.name || '', email: user.email || '', phone: user.phone || '' });
+  }, [user]);
+
+  useEffect(() => {
+    if (activeTab === 'orders') fetchOrders();
+  }, [activeTab]);
+
+  const fetchOrders = async () => {
+    setOrdersLoading(true);
+    try {
+      const res = await fetch('/api/orders', { headers: { Authorization: `Bearer ${token}` } });
+      const data = await res.json();
+      setOrders(data.orders || []);
+    } catch { toast.error('Failed to load orders'); }
+    finally { setOrdersLoading(false); }
+  };
+
+  const saveProfile = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ name: profile.name, phone: profile.phone }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setUser(data.user, token);
+      setEdit(false);
+      toast.success('Profile updated! ✅');
+    } catch (err) { toast.error(err.message); }
+    finally { setSaving(false); }
+  };
+
+  const changePassword = async e => {
+    e.preventDefault();
+    if (passwords.newPass !== passwords.confirm) { toast.error("Passwords don't match"); return; }
+    if (passwords.newPass.length < 8) { toast.error('Password must be 8+ characters'); return; }
+    setSaving(true);
+    try {
+      const res = await fetch('/api/auth/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ currentPassword: passwords.current, newPassword: passwords.newPass }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      toast.success('Password updated! ✅');
+      setPasswords({ current: '', newPass: '', confirm: '' });
+    } catch (err) { toast.error(err.message); }
+    finally { setSaving(false); }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/');
+  };
+
+  if (!user) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <FontAwesomeIcon icon={faSpinner} className="w-10 h-10 text-purple-500 animate-spin" />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
       <div className="max-w-5xl mx-auto px-4">
-        {/* Header banner */}
+        {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           className="bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 rounded-3xl p-6 sm:p-8 mb-6 relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
-            {['✨','⭐','🌟'].map((e,i) => (
-              <div key={i} className="absolute text-5xl" style={{top:`${20+i*30}%`, right:`${5+i*15}%`}}>{e}</div>
-            ))}
+          <div className="absolute inset-0 opacity-10 text-5xl flex items-center justify-around pointer-events-none">
+            {['✨','⭐','🌟'].map((e,i) => <span key={i}>{e}</span>)}
           </div>
           <div className="flex items-center gap-4 sm:gap-5 relative">
-            <motion.div whileHover={{ scale: 1.05 }}
-              className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-white/20 flex items-center justify-center font-display text-3xl sm:text-4xl text-white ring-4 ring-white/30 flex-shrink-0">
-              {profile.name.charAt(0)}
-            </motion.div>
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-white/20 flex items-center justify-center font-display text-3xl sm:text-4xl text-white ring-4 ring-white/30 flex-shrink-0">
+              {user.name?.charAt(0)?.toUpperCase()}
+            </div>
             <div>
-              <h1 className="font-display text-2xl sm:text-3xl text-white">{profile.name}</h1>
-              <p className="text-white/80 font-semibold text-sm">{profile.email}</p>
-              <div className="flex items-center gap-2 sm:gap-3 mt-2 flex-wrap">
-                <span className="bg-white/20 rounded-full px-3 py-1 text-xs font-bold text-white">⭐ Premium Member</span>
-                <span className="text-white/60 text-xs font-semibold">Since Nov 2024</span>
-              </div>
+              <h1 className="font-display text-2xl sm:text-3xl text-white">{user.name}</h1>
+              <p className="text-white/80 font-semibold text-sm">{user.email}</p>
+              <span className="bg-white/20 rounded-full px-3 py-1 text-xs font-bold text-white mt-2 inline-block">
+                {user.role === 'admin' ? '👑 Admin' : '⭐ Member'}
+              </span>
             </div>
           </div>
         </motion.div>
@@ -68,17 +132,13 @@ export default function AccountPage() {
             <div className="bg-white rounded-3xl shadow-soft p-3 space-y-1">
               {tabs.map(({ id, label, icon }) => (
                 <motion.button key={id} onClick={() => setActiveTab(id)} whileTap={{ scale: 0.97 }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${
-                    activeTab === id
-                      ? 'bg-purple-100 text-purple-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-purple-600'
-                  }`}>
-                  <FontAwesomeIcon icon={icon} className="w-4 h-4" />
-                  {label}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${activeTab === id ? 'bg-purple-100 text-purple-700' : 'text-gray-600 hover:bg-gray-50 hover:text-purple-600'}`}>
+                  <FontAwesomeIcon icon={icon} className="w-4 h-4" /> {label}
                 </motion.button>
               ))}
               <div className="border-t border-gray-100 pt-1 mt-1">
-                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-red-400 hover:bg-red-50 transition-colors">
+                <button onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-red-400 hover:bg-red-50 transition-colors">
                   <FontAwesomeIcon icon={faRightFromBracket} className="w-4 h-4" /> Logout
                 </button>
               </div>
@@ -91,107 +151,145 @@ export default function AccountPage() {
               <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
 
+                {/* Profile */}
                 {activeTab === 'profile' && (
                   <div className="bg-white rounded-3xl shadow-soft p-5 sm:p-6">
                     <div className="flex justify-between items-center mb-6">
                       <h2 className="font-display text-xl sm:text-2xl text-gray-800">Personal Information</h2>
-                      <motion.button whileTap={{ scale: 0.95 }} onClick={() => setEdit(!edit)}
-                        className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl transition-all ${edit ? 'bg-purple-600 text-white' : 'bg-purple-100 text-purple-700 hover:bg-purple-600 hover:text-white'}`}>
-                        <FontAwesomeIcon icon={edit ? faCheck : faPenToSquare} className="w-3 h-3" />
-                        {edit ? 'Save' : 'Edit'}
+                      <motion.button whileTap={{ scale: 0.95 }}
+                        onClick={() => edit ? saveProfile() : setEdit(true)}
+                        disabled={saving}
+                        className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl transition-all disabled:opacity-60 ${edit ? 'bg-purple-600 text-white' : 'bg-purple-100 text-purple-700 hover:bg-purple-600 hover:text-white'}`}>
+                        <FontAwesomeIcon icon={saving ? faSpinner : edit ? faCheck : faPenToSquare}
+                          className={`w-3 h-3 ${saving ? 'animate-spin' : ''}`} />
+                        {saving ? 'Saving...' : edit ? 'Save' : 'Edit'}
                       </motion.button>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                       {[
-                        { label: 'Full Name', key: 'name' },
-                        { label: 'Email Address', key: 'email', type: 'email' },
+                        { label: 'Full Name', key: 'name', type: 'text' },
                         { label: 'Phone Number', key: 'phone', type: 'tel' },
-                        { label: 'Date of Birth', key: 'dob', type: 'date' },
-                      ].map(({ label, key, type = 'text' }) => (
+                      ].map(({ label, key, type }) => (
                         <div key={key}>
                           <label className="block text-xs font-black text-gray-400 uppercase tracking-wide mb-2">{label}</label>
                           {edit
                             ? <input type={type} value={profile[key]} onChange={e => setProfile(p => ({ ...p, [key]: e.target.value }))} className="input-field text-sm" />
-                            : <p className="font-bold text-gray-800 py-3 px-4 bg-gray-50 rounded-2xl text-sm">{profile[key]}</p>}
+                            : <p className="font-bold text-gray-800 py-3 px-4 bg-gray-50 rounded-2xl text-sm">{profile[key] || '—'}</p>}
                         </div>
                       ))}
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-black text-gray-400 uppercase tracking-wide mb-2">Email Address</label>
+                        <p className="font-bold text-gray-800 py-3 px-4 bg-gray-50 rounded-2xl text-sm">{user.email}</p>
+                        <p className="text-xs text-gray-400 mt-1 font-semibold">Email cannot be changed</p>
+                      </div>
                     </div>
                   </div>
                 )}
 
+                {/* Orders */}
                 {activeTab === 'orders' && (
                   <div className="bg-white rounded-3xl shadow-soft p-5 sm:p-6">
                     <h2 className="font-display text-xl sm:text-2xl text-gray-800 mb-5">Order History</h2>
-                    <div className="space-y-4">
-                      {orders.map((order, i) => (
-                        <motion.div key={order.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
-                          className="border border-gray-100 rounded-2xl p-4 hover:border-purple-200 transition-colors">
-                          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-                            <div>
-                              <p className="font-black text-gray-800 text-sm">#{order.id}</p>
-                              <p className="text-xs text-gray-400 font-semibold">{order.date} • {order.items} items</p>
+                    {ordersLoading ? (
+                      <div className="flex items-center justify-center py-12">
+                        <FontAwesomeIcon icon={faSpinner} className="w-8 h-8 text-purple-500 animate-spin" />
+                      </div>
+                    ) : orders.length === 0 ? (
+                      <div className="text-center py-12">
+                        <div className="text-6xl mb-4">📦</div>
+                        <h3 className="font-display text-xl text-gray-600 mb-3">No orders yet</h3>
+                        <Link href="/products" className="btn-primary text-sm">Start Shopping ✨</Link>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {orders.map((order, i) => (
+                          <motion.div key={order._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
+                            className="border border-gray-100 rounded-2xl p-4 hover:border-purple-200 transition-colors">
+                            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                              <div>
+                                <p className="font-black text-gray-800 text-sm">#{order.orderId}</p>
+                                <p className="text-xs text-gray-400 font-semibold">
+                                  {new Date(order.createdAt).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })} • {order.items?.length} items
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <span className={`badge text-xs ${statusColors[order.orderStatus] || 'bg-gray-100 text-gray-600'}`}>{order.orderStatus}</span>
+                                <p className="font-display text-lg text-purple-600 mt-1">Rs. {order.total?.toLocaleString()}</p>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <span className={`badge text-xs ${statusColors[order.status]}`}>{order.status}</span>
-                              <p className="font-display text-lg text-purple-600 mt-1">Rs. {order.total.toLocaleString()}</p>
+                            {/* Items preview */}
+                            <div className="flex gap-2 flex-wrap mb-3">
+                              {order.items?.slice(0, 3).map((item, j) => (
+                                <div key={j} className="flex items-center gap-1.5 bg-gray-50 rounded-xl px-2 py-1">
+                                  {item.image && <img src={item.image} alt="" className="w-6 h-6 rounded-lg object-cover" />}
+                                  <span className="text-xs font-semibold text-gray-600 truncate max-w-[100px]">{item.name}</span>
+                                </div>
+                              ))}
+                              {order.items?.length > 3 && <span className="text-xs font-bold text-purple-500">+{order.items.length - 3} more</span>}
                             </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <button className="btn-outline text-xs py-1.5 px-3">View Details</button>
-                            {order.status === 'Delivered' && <button className="text-xs font-bold text-purple-500 hover:underline">Reorder</button>}
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
+                            <div className="flex gap-2">
+                              <button className="btn-outline text-xs py-1.5 px-3">View Details</button>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
 
+                {/* Addresses */}
                 {activeTab === 'addresses' && (
                   <div className="bg-white rounded-3xl shadow-soft p-5 sm:p-6">
                     <div className="flex justify-between items-center mb-5">
                       <h2 className="font-display text-xl sm:text-2xl text-gray-800">Saved Addresses</h2>
-                      <button className="btn-primary text-sm px-4 py-2 flex items-center gap-1.5">
-                        <FontAwesomeIcon icon={faPlus} className="w-3 h-3" /> Add New
-                      </button>
                     </div>
-                    <div className="space-y-4">
-                      {[
-                        { label: 'Home', address: 'House 12, Street 5, DHA Phase 6', city: 'Karachi, Sindh', default: true },
-                        { label: 'Office', address: 'Plot 34, Block B, Clifton', city: 'Karachi, Sindh', default: false },
-                      ].map((a, i) => (
-                        <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-                          className={`border-2 rounded-2xl p-4 ${a.default ? 'border-purple-400 bg-purple-50/50' : 'border-gray-200'}`}>
-                          <div className="flex justify-between mb-2 flex-wrap gap-2">
-                            <div className="flex items-center gap-2">
-                              <span className="font-black text-gray-800 text-sm">{a.label}</span>
-                              {a.default && <span className="badge bg-purple-600 text-[10px]">Default</span>}
+                    {user.addresses?.length === 0 || !user.addresses ? (
+                      <div className="text-center py-12">
+                        <div className="text-6xl mb-4">📍</div>
+                        <p className="font-bold text-gray-500 mb-3">No saved addresses</p>
+                        <p className="text-gray-400 text-sm font-semibold">Addresses are saved automatically when you place an order</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {user.addresses.map((a, i) => (
+                          <div key={i} className={`border-2 rounded-2xl p-4 ${a.isDefault ? 'border-purple-400 bg-purple-50/50' : 'border-gray-200'}`}>
+                            <div className="flex justify-between mb-2 flex-wrap gap-2">
+                              <div className="flex items-center gap-2">
+                                <span className="font-black text-gray-800 text-sm">{a.label || 'Address'}</span>
+                                {a.isDefault && <span className="badge bg-purple-600 text-[10px]">Default</span>}
+                              </div>
                             </div>
-                            <div className="flex gap-2">
-                              <button className="text-xs font-bold text-purple-500 hover:underline">Edit</button>
-                              <button className="text-xs font-bold text-red-400 hover:underline">Delete</button>
-                            </div>
+                            <p className="text-sm font-semibold text-gray-700">{a.address}</p>
+                            <p className="text-sm text-gray-400 font-semibold">{a.city}, {a.province}</p>
                           </div>
-                          <p className="text-sm font-semibold text-gray-700">{a.address}</p>
-                          <p className="text-sm text-gray-400 font-semibold">{a.city}</p>
-                        </motion.div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
 
+                {/* Security */}
                 {activeTab === 'security' && (
                   <div className="bg-white rounded-3xl shadow-soft p-5 sm:p-6">
-                    <h2 className="font-display text-xl sm:text-2xl text-gray-800 mb-5">Security Settings</h2>
-                    <div className="space-y-4 max-w-md">
-                      {['Current Password', 'New Password', 'Confirm New Password'].map(label => (
-                        <div key={label}>
+                    <h2 className="font-display text-xl sm:text-2xl text-gray-800 mb-5">Change Password</h2>
+                    <form onSubmit={changePassword} className="space-y-4 max-w-md">
+                      {[
+                        { label: 'Current Password', key: 'current', placeholder: '••••••••' },
+                        { label: 'New Password', key: 'newPass', placeholder: 'Min 8 characters' },
+                        { label: 'Confirm New Password', key: 'confirm', placeholder: 'Re-enter new password' },
+                      ].map(({ label, key, placeholder }) => (
+                        <div key={key}>
                           <label className="block text-xs font-black text-gray-500 uppercase tracking-wide mb-2">{label}</label>
-                          <input type="password" placeholder="••••••••" className="input-field" />
+                          <input type="password" value={passwords[key]}
+                            onChange={e => setPasswords(p => ({ ...p, [key]: e.target.value }))}
+                            placeholder={placeholder} className="input-field" required />
                         </div>
                       ))}
-                      <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                        className="btn-primary px-6">Update Password</motion.button>
-                    </div>
+                      <motion.button type="submit" disabled={saving} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+                        className="btn-primary px-6 disabled:opacity-70 flex items-center gap-2">
+                        {saving ? <><FontAwesomeIcon icon={faSpinner} className="w-4 h-4 animate-spin" />Updating...</> : 'Update Password'}
+                      </motion.button>
+                    </form>
                   </div>
                 )}
               </motion.div>

@@ -2,22 +2,35 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProductCard from '@/components/shop/ProductCard';
-import { products, categories } from '@/data/products';
+import { categories } from '@/data/products';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
-export default function FeaturedProducts() {
+export default function FeaturedProducts({ initialProducts = [] }) {
   const [active, setActive] = useState('all');
 
   const filtered = active === 'all'
-    ? products.filter(p => p.isFeatured).slice(0, 8)
-    : products.filter(p => p.category === active && p.isFeatured).slice(0, 8);
+    ? initialProducts.slice(0, 8)
+    : initialProducts.filter(p => p.category === active).slice(0, 8);
 
   const tabs = [
     { id: 'all', label: 'All', emoji: '⭐' },
     ...categories.map(c => ({ id: c.slug, label: c.name, emoji: c.emoji })),
   ];
+
+  if (initialProducts.length === 0) {
+    return (
+      <section className="py-14 sm:py-20 bg-gradient-to-b from-white to-purple-50/40">
+        <div className="max-w-7xl mx-auto px-4 text-center py-16">
+          <div className="text-6xl mb-4">🧸</div>
+          <h2 className="font-display text-3xl text-gray-600 mb-3">No products yet</h2>
+          <p className="text-gray-400 font-semibold mb-6">Add products from the admin panel to see them here</p>
+          <Link href="/admin/products" className="btn-primary">Go to Admin →</Link>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-14 sm:py-20 bg-gradient-to-b from-white to-purple-50/40">
@@ -32,7 +45,7 @@ export default function FeaturedProducts() {
           <p className="text-gray-500 font-semibold text-sm sm:text-base">Hand-picked favorites for your little ones</p>
         </motion.div>
 
-        {/* Tabs */}
+        {/* Category Tabs */}
         <div className="flex items-center justify-center gap-2 flex-wrap mb-8 sm:mb-10">
           {tabs.map(tab => (
             <motion.button key={tab.id} onClick={() => setActive(tab.id)}
@@ -47,15 +60,14 @@ export default function FeaturedProducts() {
           ))}
         </div>
 
-        {/* Grid */}
         <AnimatePresence mode="wait">
           <motion.div key={active} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
             {filtered.map((product, i) => (
-              <motion.div key={product.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.06, type: 'spring', stiffness: 200 }}>
-                <ProductCard product={product} priority={i < 4} />
+              <motion.div key={product._id || product.id} initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.06, type: 'spring', stiffness: 200 }}>
+                <ProductCard product={{ ...product, id: product._id || product.id }} priority={i < 4} />
               </motion.div>
             ))}
           </motion.div>
@@ -66,7 +78,7 @@ export default function FeaturedProducts() {
           <Link href="/products">
             <motion.button whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.97 }}
               className="btn-primary text-base sm:text-lg px-8 sm:px-10 py-4">
-              View All Products <FontAwesomeIcon icon={faArrowRight} className="w-4 h-4" />
+              View All Products <FontAwesomeIcon icon={faArrowRight} className="w-4 h-4 ml-1" />
             </motion.button>
           </Link>
         </motion.div>

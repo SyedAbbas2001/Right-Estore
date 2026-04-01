@@ -1,205 +1,151 @@
 # 🧸 Right Estore — Kids E-Commerce Platform
 
-A fully featured, production-ready kids e-commerce website built with Next.js 15 App Router, featuring a playful pastel design, complete shopping flow, and admin dashboard.
+A fully functional, production-ready kids e-commerce website built with Next.js 15 App Router.
 
 ---
 
-## ✨ Features
+## 🚀 Quick Setup (5 Steps)
 
-### 🛍️ Customer Side
-- **Homepage** — Hero banner slider, categories, featured products, testimonials, stats
-- **Product Listing** — Filters (category, price, size, gender), sorting, grid/list view, infinite scroll
-- **Product Detail** — Image gallery, size/color selector, reviews, related products
-- **Cart** — Slide-out sidebar cart + full cart page, quantity control, free shipping indicator
-- **Wishlist** — Save/remove items, add all to cart
-- **Checkout** — Multi-step with COD + Stripe card payment
-- **Order Confirmation** — Confetti animation, order tracking steps, coupon reward
-- **Search** — Full-text search across products
-
-### 👤 Authentication
-- Login & Signup pages
-- Form validation, password strength indicator
-- Social login UI (Google, Facebook)
-
-### 📊 User Dashboard
-- Profile management (view/edit)
-- Order history with status tracking
-- Saved addresses
-- Security (password change)
-
-### 🛠️ Admin Panel (`/admin`)
-- **Dashboard** — Sales stats, recent orders, top products, quick actions
-- **Products** — Full CRUD (add, edit, delete), search & filter by category
-- **Orders** — View all orders, filter by status, update order status in real-time
-- **Categories** — Add/edit/delete categories with custom emoji & gradients
-- **Analytics** — Revenue chart, category breakdown, KPIs
-
-### ⚙️ Technical
-- Next.js 15 App Router + Server Components
-- Zustand for cart & wishlist state (persisted to localStorage)
-- Tailwind CSS with custom design tokens
-- Route groups for clean URL structure
-- API Routes for products, orders, auth, reviews, Stripe
-- Mongoose models (Product, Order, User)
-- SEO: dynamic metadata, sitemap, robots.txt
-- Loading skeletons, error boundaries, 404 page
-
----
-
-## 🚀 Getting Started
-
-### 1. Install dependencies
+### Step 1 — Install Dependencies
 ```bash
 npm install
 ```
 
-### 2. Set up environment variables
+### Step 2 — Environment Variables
 ```bash
 cp .env.example .env.local
 ```
-Edit `.env.local` with your values:
-- `MONGODB_URI` — your MongoDB connection string
-- `NEXTAUTH_SECRET` — random secret string
-- `STRIPE_SECRET_KEY` — from [stripe.com](https://stripe.com) (test key)
-- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` — from Stripe dashboard
+Then edit `.env.local`:
 
-### 3. Run the development server
+```env
+# MongoDB Atlas (free at mongodb.com/atlas)
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/rightestore
+
+# JWT Secret (run: openssl rand -base64 32)
+JWT_SECRET=your-random-secret-here-min-32-chars
+
+# Cloudinary (free at cloudinary.com)
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
+
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+### Step 3 — Run Development Server
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000)
+
+### Step 4 — Seed Database (First Time Only)
+Open browser and go to:
+```
+POST http://localhost:3000/api/seed
+Body: { "secret": "rightestore-seed-2024" }
+```
+
+Or use this curl command:
+```bash
+curl -X POST http://localhost:3000/api/seed \
+  -H "Content-Type: application/json" \
+  -d '{"secret":"rightestore-seed-2024"}'
+```
+
+This creates:
+- ✅ Admin user: admin@rightestore.pk / admin123
+- ✅ 4 default categories
+
+### Step 5 — Login & Start Adding Products
+- **Admin Panel:** http://localhost:3000/admin-login
+- **Email:** admin@rightestore.pk
+- **Password:** admin123
+
+---
+
+## 🔑 Quick Account Setup
+
+### MongoDB Atlas (Free)
+1. Go to [mongodb.com/atlas](https://mongodb.com/atlas)
+2. Create free account → New Project → Build Database (M0 Free)
+3. Create user & password
+4. Network Access → Add `0.0.0.0/0`
+5. Connect → Drivers → Copy connection string
+6. Replace `<password>` with your password
+
+### Cloudinary (Free)
+1. Go to [cloudinary.com](https://cloudinary.com)
+2. Create free account
+3. Dashboard → Copy: Cloud Name, API Key, API Secret
+4. Paste in `.env.local`
+
+---
+
+## ✅ Features
+
+### Customer Side
+- 🏠 Homepage with hero banner, categories, featured products
+- 🛍️ Product listing with filters (category, price, size, gender)
+- 📦 Product detail with image gallery, reviews
+- 🛒 Cart with sidebar + full page
+- ❤️ Wishlist
+- 💳 Checkout (COD only)
+- 🎉 Order confirmation
+- 👤 User account (profile, orders, addresses)
+- 🔍 Search
+
+### Admin Panel (`/admin-login`)
+- 📊 Dashboard with real-time stats
+- ➕ Add/Edit/Delete products with **image upload to Cloudinary**
+- 📋 View & manage orders, update status
+- 🏷️ Add/Edit/Delete categories
+- 📈 Analytics with charts
+
+### Technical
+- ✅ Real MongoDB database
+- ✅ JWT authentication (login/signup)
+- ✅ Cloudinary image upload
+- ✅ bcrypt password hashing
+- ✅ Protected admin routes
+- ✅ Framer Motion animations
+- ✅ Font Awesome icons
+- ✅ Fully responsive
 
 ---
 
 ## 📁 Project Structure
-
 ```
-kids-store/
-├── app/
-│   ├── (auth)/          # Login, Signup pages (no navbar)
-│   ├── (shop)/          # Products, Cart, Checkout, Wishlist
-│   ├── (dashboard)/     # User Account, Orders
-│   ├── (admin)/         # Full admin panel
-│   ├── api/             # API routes (products, orders, auth, reviews, stripe)
-│   ├── about/           # About page
-│   ├── contact/         # Contact + FAQ page
-│   ├── search/          # Search results
-│   ├── layout.js        # Root layout with Navbar, Footer, CartSidebar
-│   ├── page.js          # Homepage
-│   ├── sitemap.js       # Auto-generated sitemap
-│   └── robots.js        # robots.txt
-│
-├── components/
-│   ├── layout/          # Navbar, Footer
-│   ├── home/            # HeroBanner, Categories, FeaturedProducts, etc.
-│   ├── shop/            # ProductCard, ProductFilters
-│   ├── cart/            # CartSidebar
-│   ├── common/          # Skeletons
-│   └── auth/            # (ready for auth components)
-│
-├── data/
-│   └── products.js      # Sample product & category data (14 products, 4 categories)
-│
-├── store/
-│   └── index.js         # Zustand stores: cart, wishlist, UI
-│
-├── lib/
-│   ├── db.js            # MongoDB connection
-│   └── models/          # Mongoose: Product, Order, User
-│
-├── hooks/
-│   └── index.js         # Custom hooks: useSearch, useInView, useLocalStorage, etc.
-│
-└── utils/
-    └── helpers.js       # Utility functions: formatPrice, slugify, cn, etc.
+app/
+├── (auth)/         → Login, Signup
+├── (shop)/         → Products, Cart, Checkout, Wishlist
+├── (dashboard)/    → Account, Orders
+├── (admin)/        → Admin Panel
+├── api/
+│   ├── auth/       → Login, Signup, Logout
+│   ├── products/   → CRUD
+│   ├── orders/     → Create, List, Update status
+│   ├── categories/ → CRUD
+│   ├── upload/     → Cloudinary image upload
+│   ├── reviews/    → Add review
+│   ├── seed/       → First-time DB setup
+│   └── admin/analytics/ → Dashboard stats
+lib/
+├── db.js           → MongoDB connection
+├── auth.js         → JWT utilities
+├── cloudinary.js   → Image upload
+└── models/         → User, Product, Order, Category
 ```
 
 ---
 
-## 🎨 Design System
+## 🌐 Deploy to Vercel
 
-### Colors (Tailwind custom)
-| Token | Value | Usage |
-|-------|-------|-------|
-| `candy-pink` | `#FF6B9D` | Primary CTAs, badges |
-| `candy-purple` | `#C084FC` | Primary brand, links |
-| `candy-yellow` | `#FCD34D` | Highlights, stars |
-| `candy-blue` | `#60A5FA` | Info, shipping |
-| `candy-green` | `#34D399` | Success, stock |
-
-### Fonts
-- **Display** — Bubblegum Sans (headings, prices, logo)
-- **Body** — Nunito (all body text, labels)
-
-### Components
-- `.btn-primary` — gradient pink→purple, rounded-full
-- `.btn-secondary` — white with purple border
-- `.btn-outline` — gray border with hover
-- `.card` — white rounded-3xl with soft shadow + hover
-- `.input-field` — rounded-2xl with purple focus ring
-- `.badge` — small rounded-full colored label
+1. Push to GitHub
+2. Import project on [vercel.com](https://vercel.com)
+3. Add Environment Variables (same as `.env.local`)
+4. Deploy!
+5. Run seed: `POST your-domain.vercel.app/api/seed`
 
 ---
-
-## 🔑 Demo Credentials
-
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@rightestore.pk | admin123 |
-| User | demo@rightestore.pk | password123 |
-
-**Admin Panel:** [http://localhost:3000/admin-login](http://localhost:3000/admin-login)
-
----
-
-## 💳 Payment Setup
-
-### Stripe (Card Payments)
-1. Create account at [stripe.com](https://stripe.com)
-2. Copy test keys to `.env.local`
-3. The `/api/orders/payment-intent` route creates PaymentIntents
-
-### Cash on Delivery
-Works out of the box — no setup needed.
-
----
-
-## 🗄️ Database (MongoDB)
-
-Without `MONGODB_URI`, the app uses the sample data in `data/products.js`.
-
-To enable MongoDB:
-1. Create a free cluster at [mongodb.com/atlas](https://mongodb.com/atlas)
-2. Add connection string to `.env.local`
-3. Mongoose models are in `lib/models/`
-
----
-
-## 📦 Sample Data
-
-14 products across 4 categories:
-- **Garments** (5): Unicorn Dress, Dino T-Shirt, Star Hoodie, Princess Skirt, Superhero Cape
-- **New Born** (3): Onesie Set, Bear Sleep Sack, Muslin Swaddles
-- **Toys** (4): Rainbow Stacker, Mega Blocks, Plush Bunny, Kinetic Sand
-- **Stationery** (2): Unicorn Art Set, Dino Backpack Set
-
----
-
-## 🚢 Deployment
-
-### Vercel (Recommended)
-```bash
-npm run build
-# Deploy to Vercel — zero config for Next.js
-```
-
-### Environment Variables on Vercel
-Add all variables from `.env.example` in your Vercel project settings.
-
----
-
-## 📝 License
-
-MIT — free to use for personal and commercial projects.
 
 Built with ❤️ for little ones in Pakistan 🇵🇰

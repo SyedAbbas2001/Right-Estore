@@ -1,19 +1,18 @@
 'use client';
-import { useState, useMemo, Suspense } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGrip, faList, faFilter, faChevronDown, faXmark, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { faGrid2, faList, faFilter, faChevronDown, faXmark, faMagnifyingGlass, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import ProductCard from '@/components/shop/ProductCard';
 import ProductFilters from '@/components/shop/ProductFilters';
-import { products, categories } from '@/data/products';
+import { categories as staticCategories } from '@/data/products';
 
 const sorts = [
-  { value: 'featured', label: 'Featured' },
+  { value: 'newest', label: 'Newest First' },
   { value: 'price-asc', label: 'Price: Low → High' },
   { value: 'price-desc', label: 'Price: High → Low' },
   { value: 'rating', label: 'Best Rating' },
-  { value: 'newest', label: 'Newest First' },
   { value: 'discount', label: 'Biggest Discount' },
 ];
 
@@ -23,7 +22,9 @@ function ProductsContent() {
   const filterParam = searchParams.get('filter');
   const searchParam = searchParams.get('search') || searchParams.get('q');
 
-  const [sort, setSort] = useState('featured');
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [sort, setSort] = useState('newest');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [grid, setGrid] = useState(true);
   const [priceRange, setPriceRange] = useState([0, 10000]);
@@ -32,34 +33,41 @@ function ProductsContent() {
   const [page, setPage] = useState(1);
   const perPage = 12;
 
+  useEffect(() => {
+    fetchProducts();
+  }, [catParam, filterParam, searchParam, sort]);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ sort, limit: '100' });
+      if (catParam) params.set('category', catParam);
+      if (filterParam) params.set('filter', filterParam);
+      if (searchParam) params.set('search', searchParam);
+
+      const res = await fetch(`/api/products?${params}`);
+      const data = await res.json();
+      setProducts(data.products || []);
+    } catch (err) {
+      console.error('Failed to load products', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filtered = useMemo(() => {
     let r = [...products];
-    if (catParam) r = r.filter(p => p.category === catParam);
-    if (filterParam === 'new') r = r.filter(p => p.isNew);
-    if (filterParam === 'sale') r = r.filter(p => p.discount > 0);
-    if (filterParam === 'featured') r = r.filter(p => p.isFeatured);
-    if (searchParam) {
-      const q = searchParam.toLowerCase();
-      r = r.filter(p => p.name.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q) || p.tags?.some(t => t.includes(q)));
-    }
     r = r.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
     if (selSizes.length) r = r.filter(p => p.sizes?.some(s => selSizes.includes(s)));
     if (selGenders.length) r = r.filter(p => selGenders.includes(p.gender));
-    switch (sort) {
-      case 'price-asc': r.sort((a,b) => a.price - b.price); break;
-      case 'price-desc': r.sort((a,b) => b.price - a.price); break;
-      case 'rating': r.sort((a,b) => b.rating - a.rating); break;
-      case 'newest': r.sort((a,b) => (b.isNew?1:0) - (a.isNew?1:0)); break;
-      case 'discount': r.sort((a,b) => (b.discount||0) - (a.discount||0)); break;
-    }
     return r;
-  }, [catParam, filterParam, searchParam, sort, priceRange, selSizes, selGenders]);
+  }, [products, priceRange, selSizes, selGenders]);
 
   const paginated = filtered.slice(0, page * perPage);
   const hasMore = paginated.length < filtered.length;
 
   const pageTitle = catParam
-    ? categories.find(c => c.slug === catParam)?.name || 'Products'
+    ? staticCategories.find(c => c.slug === catParam)?.name || 'Products'
     : filterParam === 'new' ? 'New Arrivals'
     : filterParam === 'sale' ? 'Sale Items'
     : searchParam ? `"${searchParam}"`
@@ -73,7 +81,7 @@ function ProductsContent() {
           className="font-display text-3xl sm:text-4xl md:text-5xl text-white mb-2">{pageTitle}</motion.h1>
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
           className="text-white/80 font-semibold text-sm sm:text-base">
-          {filtered.length} product{filtered.length !== 1 ? 's' : ''} found
+          {loading ? 'Loading...' : `${filtered.length} product${filtered.length !== 1 ? 's' : ''} found`}
         </motion.p>
       </div>
 
@@ -87,7 +95,6 @@ function ProductsContent() {
               activeCategory={catParam} />
           </aside>
 
-          {/* Main */}
           <div className="flex-1 min-w-0">
             {/* Toolbar */}
             <div className="flex items-center justify-between mb-5 bg-white rounded-2xl p-3 sm:p-4 shadow-soft">
@@ -109,7 +116,7 @@ function ProductsContent() {
                 <div className="flex border border-gray-200 rounded-xl overflow-hidden">
                   <motion.button whileTap={{ scale: 0.9 }} onClick={() => setGrid(true)}
                     className={`p-2 ${grid ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-gray-600'}`}>
-                    <FontAwesomeIcon icon={faGrip} className="w-4 h-4" />
+                    <FontAwesomeIcon icon={faGrid2} className="w-4 h-4" />
                   </motion.button>
                   <motion.button whileTap={{ scale: 0.9 }} onClick={() => setGrid(false)}
                     className={`p-2 ${!grid ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-gray-600'}`}>
@@ -122,7 +129,7 @@ function ProductsContent() {
             {/* Category pills */}
             {!catParam && (
               <div className="flex gap-2 flex-wrap mb-5 overflow-x-auto scrollbar-hide pb-1">
-                {categories.map(cat => (
+                {staticCategories.map(cat => (
                   <a key={cat.id} href={`/products?category=${cat.slug}`}
                     className="flex items-center gap-1.5 px-3 py-2 bg-white rounded-full border border-gray-200 text-xs font-bold text-gray-600 hover:border-purple-400 hover:text-purple-600 transition-all shadow-soft whitespace-nowrap">
                     <span>{cat.emoji}</span>{cat.name}
@@ -132,30 +139,30 @@ function ProductsContent() {
             )}
 
             {/* Grid */}
-            {filtered.length === 0 ? (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                className="text-center py-20">
-                <div className="text-6xl mb-4">
-                  <FontAwesomeIcon icon={faMagnifyingGlass} className="text-gray-300 w-16 h-16" />
+            {loading ? (
+              <div className="flex items-center justify-center py-24">
+                <div className="text-center">
+                  <FontAwesomeIcon icon={faSpinner} className="w-12 h-12 text-purple-500 animate-spin mb-4" />
+                  <p className="font-display text-xl text-purple-600">Loading products...</p>
                 </div>
+              </div>
+            ) : filtered.length === 0 ? (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
+                <div className="text-6xl mb-4"><FontAwesomeIcon icon={faMagnifyingGlass} className="text-gray-300 w-16 h-16" /></div>
                 <h3 className="font-display text-2xl text-gray-700 mb-3">No products found</h3>
-                <p className="text-gray-500 font-semibold mb-6 text-sm">Try adjusting filters or search terms</p>
+                <p className="text-gray-500 font-semibold mb-6 text-sm">Try adjusting filters or search</p>
                 <a href="/products" className="btn-primary">Browse All Products</a>
               </motion.div>
             ) : (
               <>
-                <AnimatePresence mode="wait">
-                  <motion.div key={sort + catParam} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                    className={`grid gap-3 sm:gap-4 md:gap-5 ${grid ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-1'}`}>
-                    {paginated.map((product, i) => (
-                      <motion.div key={product.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: Math.min(i * 0.05, 0.4) }}>
-                        <ProductCard product={product} priority={i < 4} />
-                      </motion.div>
-                    ))}
-                  </motion.div>
-                </AnimatePresence>
-
+                <div className={`grid gap-3 sm:gap-4 md:gap-5 ${grid ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-1'}`}>
+                  {paginated.map((product, i) => (
+                    <motion.div key={product._id || product.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: Math.min(i * 0.05, 0.4) }}>
+                      <ProductCard product={{ ...product, id: product._id || product.id }} priority={i < 4} />
+                    </motion.div>
+                  ))}
+                </div>
                 {hasMore && (
                   <div className="text-center mt-10">
                     <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}

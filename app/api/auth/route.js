@@ -1,82 +1,74 @@
 import { NextResponse } from 'next/server';
-
-// Demo users store (use MongoDB in production)
-const users = [
-  {
-    id: 'u001',
-    name: 'Demo User',
-    email: 'demo@rightestore.pk',
-    password: 'password123', // In production: bcrypt hashed
-    role: 'user',
-  },
-  {
-    id: 'admin001',
-    name: 'Admin User',
-    email: 'admin@rightestore.pk',
-    password: 'admin123',
-    role: 'admin',
-  },
-];
+import connectDB from '@/lib/db';
+import User from '@/lib/models/User';
+import { signToken, getUserFromRequest } from '@/lib/auth';
 
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { action, email, password, name, phone } = body;
+    const { action, name, email, password, phone } = body;
+    await connectDB();
 
-    if (action === 'login') {
-      const user = users.find(u => u.email === email);
-
-      if (!user || user.password !== password) {
-        return NextResponse.json(
-          { error: 'Invalid email or password' },
-          { status: 401 }
-        );
-      }
-
-      // In production: generate real JWT
-      const token = Buffer.from(JSON.stringify({
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        exp: Date.now() + 7 * 24 * 60 * 60 * 1000,
-      })).toString('base64');
-
-      return NextResponse.json({
-        message: 'Login successful',
-        user: { id: user.id, name: user.name, email: user.email, role: user.role },
-        token,
-      });
-    }
-
+    // ===== SIGNUP =====
     if (action === 'signup') {
       if (!name || !email || !password) {
-        return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
+        return NextResponse.json({ error: 'Name, email and password required' }, { status: 400 });
       }
+      const exists = await User.findOne({ email });
+      if (exists) return NextResponse.json({ error: 'Email already registered' }, { status: 409 });
 
-      const exists = users.find(u => u.email === email);
-      if (exists) {
-        return NextResponse.json({ error: 'Email already registered' }, { status: 409 });
-      }
+      const user = await User.create({ name, email, password, phone: phone || '' });
+      const token = signToken({ id: user._id.toString(), email: user.email, role: user.role, name: user.name });
 
-      const newUser = {
-        id: `u${Date.now()}`,
-        name,
-        email,
-        phone: phone || '',
-        password, // hash in production
-        role: 'user',
-        createdAt: new Date().toISOString(),
-      };
+      const res = NextResponse.json({ message: 'Account created!', user: user.toSafeObject(), token });
+      res.cookies.set('auth_token', token, { httpOnly: true, maxAge: 60 * 60 * 24 * 7, path: '/' });
+      return res;
+    }
 
-      users.push(newUser);
+    // ===== LOGIN =====
+    if (action === 'login') {
+      if (!email || !password) return NextResponse.json({ error: 'Email and password required' }, { status: 400 });
 
-      return NextResponse.json({
-        message: 'Account created successfully!',
-        user: { id: newUser.id, name: newUser.name, email: newUser.email },
-      }, { status: 201 });
+      const user = await User.findOne({ email });
+      if (!user) return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
+
+      const valid = await user.comparePassword(password);
+      if (!valid) return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
+
+      const token = signToken({ id: user._id.toString(), email: user.email, role: user.role, name: user.name });
+      user.lastLogin = new Date();
+      await user.save();
+
+      const res = NextResponse.json({ message: 'Login successful', user: user.toSafeObject(), token });
+      res.cookies.set('auth_token', token, { httpOnly: true, maxAge: 60 * 60 * 24 * 7, path: '/' });
+      return res;
+    }
+
+    // ===== LOGOUT =====
+    if (action === 'logout') {
+      const res = NextResponse.json({ message: 'Logged out' });
+      res.cookies.delete('auth_token');
+      return res;
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+  } catch (error) {
+    console.error('Auth error:', error);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  }
+}
+
+// GET /api/auth — get current user
+export async function GET(request) {
+  try {
+    const userData = await getUserFromRequest(request);
+    if (!userData) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+
+    await connectDB();
+    const user = await User.findById(userData.id);
+    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+
+    return NextResponse.json({ user: user.toSafeObject() });
   } catch (error) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
