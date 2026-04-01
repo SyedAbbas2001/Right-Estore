@@ -1,12 +1,19 @@
-import Link from 'next/link';
+"use client";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import ProductCard from '@/components/shop/ProductCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
-export default function NewArrivals({ initialProducts = [] }) {
-  // Only include products where isNew is true
-  const newProducts = initialProducts.filter(p => p.isNew);
-  console.log("New arrivals:", newProducts);
+export default function NewArrivals() {
+  const [newProducts, setNewProducts] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/products?filter=new") // your API endpoint
+      .then(res => res.json())
+      .then(data => setNewProducts(data.products || []))
+      .catch(err => console.error("Failed to fetch new arrivals:", err));
+  }, []);
 
   if (newProducts.length === 0) return null;
 
