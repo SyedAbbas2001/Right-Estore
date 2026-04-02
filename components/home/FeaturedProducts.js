@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import ProductCard from "../shop/ProductCard";// make sure path is correct
+import ProductCard from "@/components/shop/ProductCard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
@@ -13,17 +13,17 @@ export default function FeaturedProducts() {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-  fetch("/api/products?limit=50")
-    .then(res => res.json())
-    .then(data => {
-      const featuredProducts = data.products.filter(p => p.isFeatured);
-      setProducts(featuredProducts);
-
-      const cats = [...new Set(featuredProducts.map(p => p.category))];
-      setCategories(cats.map(slug => ({ slug, name: slug, emoji: "📦" })));
-    })
-    .catch(err => console.error("Failed to fetch products:", err));
-}, []);
+    // Fetch products
+    fetch("/api/products?limit=50") // adjust your API endpoint
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data.products || []);
+        // Extract categories from products
+        const cats = [...new Set(data.products.map((p) => p.category))];
+        setCategories(cats.map((slug) => ({ slug, name: slug, emoji: "📦" })));
+      })
+      .catch((err) => console.error("Failed to fetch products:", err));
+  }, []);
 
   const filtered =
     active === "all"

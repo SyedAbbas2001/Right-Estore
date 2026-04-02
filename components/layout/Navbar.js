@@ -68,7 +68,7 @@ export default function Navbar() {
       </div>
 
       {/* Main Nav */}
-      <nav className={`sticky top-0 z-50 transition-all duration-400 ${scrolled ? 'glass shadow-lg shadow-purple-100/50' : 'bg-white'}`} style={{zIndex:100}}>
+      <nav className={`${pathname.startsWith('/admin') ? '' : 'sticky top-0 z-50'} transition-all duration-400 ${scrolled ? 'glass shadow-lg shadow-purple-100/50' : 'bg-white'}`} >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
