@@ -37,7 +37,7 @@ export default function FeaturedProducts() {
 
   if (products.length === 0) {
     return (
-      <section className="py-14 sm:py-20 bg-gradient-to-b from-white to-purple-50/40">
+      <section className="py-14 sm:py-20 bg-gradient-to-b from-white to-purple-50/40" >
         <div className="max-w-7xl mx-auto px-4 text-center py-16">
           <div className="text-6xl mb-4">🧸</div>
           <h2 className="font-display text-3xl text-gray-600 mb-3">No products yet</h2>

@@ -16,7 +16,7 @@ const item = {
 
 export default function CategoriesSection() {
   return (
-    <section className="py-14 sm:py-20 px-4 max-w-7xl mx-auto">
+    <section className="py-14 sm:py-20 px-4 max-w-7xl mx-auto" >
       <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }} transition={{ duration: 0.5 }} className="text-center mb-10 sm:mb-14">
         <div className="inline-flex items-center gap-2 bg-purple-100 rounded-full px-4 py-2 mb-4">

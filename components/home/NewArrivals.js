@@ -18,7 +18,7 @@ export default function NewArrivals() {
   if (newProducts.length === 0) return null;
 
   return (
-    <section className="py-14 sm:py-20 px-4 max-w-7xl mx-auto">
+    <section className="py-14 sm:py-20 px-4 max-w-7xl mx-auto" >
       <div className="flex items-center justify-between mb-8 sm:mb-10">
         <div>
           <div className="inline-flex items-center gap-2 bg-emerald-100 rounded-full px-4 py-2 mb-3">

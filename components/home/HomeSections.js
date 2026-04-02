@@ -76,7 +76,7 @@ export function PromoBanner() {
     { emoji: '🚀', title: "Boys Collection", subtitle: "Fresh styles for active little boys", color: 'from-blue-400 to-cyan-500', href: '/products?category=garments&gender=boys', btn: 'Shop Boys', btnColor: 'text-blue-500 hover:bg-blue-50' },
   ];
   return (
-    <section className="py-10 sm:py-14 px-4">
+    <section className="py-10 sm:py-14 px-4" style={{overflowX:'hidden'}}>
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-5">
         {promos.map((p, i) => (
           <motion.div key={i} initial={{ opacity: 0, x: i === 0 ? -40 : 40 }} whileInView={{ opacity: 1, x: 0 }}

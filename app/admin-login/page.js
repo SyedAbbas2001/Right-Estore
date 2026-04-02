@@ -30,7 +30,7 @@ export default function AdminLoginPage() {
       <div className="absolute inset-0 opacity-5"
         style={{ backgroundImage: 'repeating-linear-gradient(45deg, #A855F7 0, #A855F7 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }} />
 
-      <div className="w-full max-w-md relative">
+      <div className="w-full max-w-md relative mt-8">
         <motion.div initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
           <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-3xl mx-auto mb-4 shadow-lg">🧸</div>
           <h1 className="font-display text-3xl text-white">Right Estore Admin</h1>
@@ -38,7 +38,7 @@ export default function AdminLoginPage() {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="bg-gray-900 rounded-3xl p-7 sm:p-8 shadow-2xl border border-gray-800">
+          className="bg-gray-900 rounded-3xl p-7 sm:p-8 shadow-2xl border border-gray-800 mb-6">
 
           <div className="flex items-center gap-2 bg-gray-800/60 rounded-2xl px-4 py-3 mb-6">
             <FontAwesomeIcon icon={faShieldHalved} className="text-purple-400 w-4 h-4" />
