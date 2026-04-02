@@ -1,10 +1,10 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTruck, faMoneyBill, faCheck, faShieldHalved, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faTruck, faMoneyBill, faCheck, faShieldHalved, faSpinner, faRightToBracket, faLock } from '@fortawesome/free-solid-svg-icons';
 import { useCartStore, useAuthStore } from '@/store';
 import toast from 'react-hot-toast';
 
@@ -13,15 +13,32 @@ const steps = ['Cart', 'Information', 'Payment', 'Confirm'];
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, clearCart } = useCartStore();
-  const { token, user } = useAuthStore();
+  const { token, user, isLoading } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    firstName: user?.name?.split(' ')[0] || '',
-    lastName: user?.name?.split(' ')[1] || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-    address: '', city: '', province: '', postalCode: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    province: '',
+    postalCode: '',
   });
+
+  // Pre-fill form from user data
+  useEffect(() => {
+    if (user) {
+      const nameParts = user.name?.split(' ') || [];
+      setForm(f => ({
+        ...f,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        email: user.email || '',
+        phone: user.phone || '',
+      }));
+    }
+  }, [user]);
 
   const total = items.reduce((a, i) => a + i.price * i.quantity, 0);
   const shipping = total >= 2000 ? 0 : 150;
@@ -40,7 +57,7 @@ export default function CheckoutPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` }),
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           items: items.map(i => ({
@@ -58,7 +75,6 @@ export default function CheckoutPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Order failed');
-
       clearCart();
       router.push(`/order-confirmation?orderId=${data.order.orderId}&method=cod`);
     } catch (err) {
@@ -68,6 +84,7 @@ export default function CheckoutPage() {
     }
   };
 
+  // ===== EMPTY CART =====
   if (items.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
@@ -80,6 +97,86 @@ export default function CheckoutPage() {
     );
   }
 
+  // ===== NOT LOGGED IN — show login prompt =====
+  if (!user && !isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md text-center">
+          {/* Lock icon */}
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+            className="w-24 h-24 rounded-full bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center mx-auto mb-6 shadow-candy-lg">
+            <FontAwesomeIcon icon={faLock} className="w-10 h-10 text-white" />
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <h1 className="font-display text-4xl text-gray-800 mb-3">Login Required</h1>
+            <p className="text-gray-500 font-semibold mb-2 text-lg">
+              Please login to complete your order
+            </p>
+            <p className="text-gray-400 font-semibold text-sm mb-8">
+              You have <span className="text-purple-600 font-black">{items.reduce((a,i) => a+i.quantity, 0)} item(s)</span> worth{' '}
+              <span className="text-purple-600 font-black">Rs. {total.toLocaleString()}</span> in your cart
+            </p>
+
+            {/* Cart preview */}
+            <div className="bg-white rounded-3xl shadow-soft p-4 mb-6 text-left">
+              <p className="text-xs font-black text-gray-400 uppercase tracking-wide mb-3">Your Cart</p>
+              <div className="space-y-2 max-h-40 overflow-y-auto scrollbar-hide">
+                {items.map(item => (
+                  <div key={item.cartId} className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-50 flex-shrink-0">
+                      <img src={item.images?.[0]} alt={item.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-gray-800 text-xs truncate">{item.name}</p>
+                      <p className="text-xs text-gray-400">Qty: {item.quantity}</p>
+                    </div>
+                    <p className="text-purple-600 font-black text-sm flex-shrink-0">
+                      Rs. {(item.price * item.quantity).toLocaleString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t border-gray-100 mt-3 pt-3 flex justify-between">
+                <span className="font-bold text-gray-600 text-sm">Total</span>
+                <span className="font-display text-xl text-purple-600">Rs. {total.toLocaleString()}</span>
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="space-y-3">
+              <Link
+                href={`/login?redirect=/checkout`}
+                className="btn-primary w-full py-4 justify-center text-lg flex items-center gap-2">
+                <FontAwesomeIcon icon={faRightToBracket} className="w-5 h-5" />
+                Login to Continue
+              </Link>
+              <Link
+                href={`/signup?redirect=/checkout`}
+                className="btn-secondary w-full py-4 justify-center text-base flex items-center gap-2">
+                Create New Account
+              </Link>
+              <Link href="/cart" className="block text-center text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors pt-1">
+                ← Back to Cart
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  // ===== LOADING =====
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <FontAwesomeIcon icon={faSpinner} className="w-10 h-10 text-purple-500 animate-spin" />
+      </div>
+    );
+  }
+
+  // ===== CHECKOUT FORM =====
   return (
     <div className="min-h-screen bg-gray-50 py-6 sm:py-10">
       <div className="max-w-6xl mx-auto px-4">
@@ -88,18 +185,32 @@ export default function CheckoutPage() {
           <Link href="/" className="font-display text-3xl text-gray-800">
             Right <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-600">Estore</span>
           </Link>
+
+          {/* Progress steps */}
           <div className="flex items-center justify-center gap-1 sm:gap-2 mt-6">
             {steps.map((s, i) => (
               <div key={s} className="flex items-center">
                 <div className={`flex items-center gap-1.5 ${i <= 1 ? 'text-purple-600' : 'text-gray-400'}`}>
-                  <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-black ${i < 1 ? 'bg-purple-600 text-white' : i === 1 ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg' : 'bg-gray-200 text-gray-500'}`}>
+                  <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-black ${
+                    i < 1 ? 'bg-purple-600 text-white'
+                    : i === 1 ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg'
+                    : 'bg-gray-200 text-gray-500'
+                  }`}>
                     {i < 1 ? <FontAwesomeIcon icon={faCheck} className="w-3 h-3" /> : i + 1}
                   </div>
                   <span className="text-xs font-bold hidden sm:block">{s}</span>
                 </div>
-                {i < steps.length - 1 && <div className={`w-6 sm:w-12 h-0.5 mx-1 sm:mx-2 ${i < 1 ? 'bg-purple-500' : 'bg-gray-200'}`} />}
+                {i < steps.length - 1 && (
+                  <div className={`w-6 sm:w-12 h-0.5 mx-1 sm:mx-2 ${i < 1 ? 'bg-purple-500' : 'bg-gray-200'}`} />
+                )}
               </div>
             ))}
+          </div>
+
+          {/* Logged in as */}
+          <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 rounded-full px-4 py-2 mt-4 text-sm font-bold">
+            <FontAwesomeIcon icon={faCheck} className="w-3.5 h-3.5" />
+            Logged in as {user.name}
           </div>
         </div>
 
@@ -119,7 +230,8 @@ export default function CheckoutPage() {
                 ].map(({ name, label, placeholder, type = 'text', full }) => (
                   <div key={name} className={full ? 'sm:col-span-2' : ''}>
                     <label className="block text-xs font-black text-gray-600 mb-2 uppercase tracking-wide">{label}</label>
-                    <input name={name} type={type} value={form[name]} onChange={inp} placeholder={placeholder} className="input-field" required />
+                    <input name={name} type={type} value={form[name]} onChange={inp}
+                      placeholder={placeholder} className="input-field" required />
                   </div>
                 ))}
               </div>
@@ -132,7 +244,8 @@ export default function CheckoutPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-black text-gray-600 mb-2 uppercase tracking-wide">Street Address *</label>
-                  <input name="address" value={form.address} onChange={inp} placeholder="House #, Street, Area" className="input-field" required />
+                  <input name="address" value={form.address} onChange={inp}
+                    placeholder="House #, Street, Area" className="input-field" required />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -148,9 +261,16 @@ export default function CheckoutPage() {
                     <label className="block text-xs font-black text-gray-600 mb-2 uppercase tracking-wide">Province</label>
                     <select name="province" value={form.province} onChange={inp} className="input-field">
                       <option value="">Select Province</option>
-                      {['Sindh','Punjab','KPK','Balochistan','ICT'].map(p => <option key={p} value={p}>{p}</option>)}
+                      {['Sindh','Punjab','KPK','Balochistan','ICT'].map(p => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
                     </select>
                   </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-gray-600 mb-2 uppercase tracking-wide">Postal Code</label>
+                  <input name="postalCode" value={form.postalCode} onChange={inp}
+                    placeholder="75500" className="input-field" />
                 </div>
               </div>
             </motion.div>
@@ -167,7 +287,7 @@ export default function CheckoutPage() {
                   <p className="font-black text-gray-800">Cash on Delivery</p>
                   <p className="text-xs text-gray-400 font-semibold">Pay when your order arrives at your door</p>
                 </div>
-                <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center">
+                <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center flex-shrink-0">
                   <FontAwesomeIcon icon={faCheck} className="w-3 h-3 text-white" />
                 </div>
               </div>
@@ -180,12 +300,15 @@ export default function CheckoutPage() {
               className="bg-white rounded-3xl p-5 sm:p-6 shadow-soft sticky top-24">
               <h2 className="font-display text-xl sm:text-2xl text-gray-800 mb-5">Order Summary</h2>
 
+              {/* Items */}
               <div className="space-y-3 mb-5 max-h-60 overflow-y-auto scrollbar-hide">
                 {items.map(item => (
                   <div key={item.cartId} className="flex gap-3">
                     <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-gray-50 flex-shrink-0">
                       <img src={item.images?.[0]} alt={item.name} className="w-full h-full object-cover" />
-                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-purple-500 text-white text-[10px] font-black rounded-full flex items-center justify-center">{item.quantity}</span>
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-purple-500 text-white text-[10px] font-black rounded-full flex items-center justify-center">
+                        {item.quantity}
+                      </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-gray-800 text-xs truncate">{item.name}</p>
@@ -196,13 +319,16 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
+              {/* Totals */}
               <div className="border-t border-gray-100 pt-4 space-y-2.5">
                 <div className="flex justify-between text-sm font-semibold text-gray-600">
                   <span>Subtotal</span><span>Rs. {total.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm font-semibold text-gray-600">
                   <span>Shipping</span>
-                  <span className={shipping === 0 ? 'text-green-600 font-black' : ''}>{shipping === 0 ? 'FREE 🎉' : `Rs. ${shipping}`}</span>
+                  <span className={shipping === 0 ? 'text-green-600 font-black' : ''}>
+                    {shipping === 0 ? 'FREE 🎉' : `Rs. ${shipping}`}
+                  </span>
                 </div>
                 <div className="flex justify-between text-lg font-black text-gray-800 border-t border-gray-100 pt-3">
                   <span>Total</span>
@@ -213,9 +339,11 @@ export default function CheckoutPage() {
               <motion.button onClick={placeOrder} disabled={loading}
                 whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                 className="btn-primary w-full mt-5 py-4 justify-center text-base disabled:opacity-70">
-                {loading
-                  ? <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />Placing Order...</>
-                  : <><FontAwesomeIcon icon={faTruck} className="w-4 h-4 mr-2" />Place Order — Rs. {grand.toLocaleString()}</>}
+                {loading ? (
+                  <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />Placing Order...</>
+                ) : (
+                  <><FontAwesomeIcon icon={faTruck} className="w-4 h-4 mr-2" />Place Order — Rs. {grand.toLocaleString()}</>
+                )}
               </motion.button>
 
               <div className="flex items-center justify-center gap-2 mt-3">

@@ -41,6 +41,13 @@ export default function Navbar() {
   const openCart = useCartStore(s => s.openCart);
   const { user, logout, isAdmin } = useAuthStore();
   const cartCount = cartItems.reduce((a, i) => a + i.quantity, 0);
+  const [isAdminRoute, setIsAdminRoute] = useState(false);
+
+  useEffect(() => {
+    if (pathname) {
+      setIsAdminRoute(pathname.startsWith("/admin"));
+    }
+  }, [pathname]);
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20);
@@ -49,7 +56,7 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
-
+ 
   const handleLogout = async () => {
     await logout();
     setUserMenuOpen(false);
@@ -68,7 +75,7 @@ export default function Navbar() {
       </div>
 
       {/* Main Nav */}
-      <nav className={`${pathname.startsWith('/admin') ? '' : 'sticky top-0 z-50'} transition-all duration-400 ${scrolled ? 'glass shadow-lg shadow-purple-100/50' : 'bg-white'}`} >
+      <nav className={`${!isAdminRoute ? "sticky top-0 z-50" : ""} transition-all duration-400 ${scrolled ? 'glass shadow-lg shadow-purple-100/50' : 'bg-white'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}

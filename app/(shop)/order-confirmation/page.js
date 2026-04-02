@@ -2,9 +2,9 @@
 import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleCheck, faBox, faTruck, faHouseChimney, faGift } from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck, faBox, faTruck, faHouseChimney, faGift, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
 const confettiEmojis = ['🎉', '⭐', '🎊', '✨', '🌟', '🎈', '💜', '🌈'];
 
@@ -15,7 +15,7 @@ function ConfettiPiece({ delay, left, emoji }) {
       animate={{ y: '110vh', rotate: 360, opacity: [1, 1, 0] }}
       transition={{ duration: 3.5, delay, ease: 'easeIn' }}
       className="fixed top-0 text-2xl sm:text-3xl pointer-events-none z-50"
-      style={{ left: `${left}%` }}>
+      style={{ left: left + '%' }}>
       {emoji}
     </motion.div>
   );
@@ -23,7 +23,7 @@ function ConfettiPiece({ delay, left, emoji }) {
 
 function OrderContent() {
   const searchParams = useSearchParams();
-  const orderId = searchParams.get('orderId') || 'KS000000';
+  const orderId = searchParams.get('orderId') || 'RE000000';
   const method = searchParams.get('method') || 'cod';
   const [showConfetti, setShowConfetti] = useState(true);
 
@@ -38,14 +38,11 @@ function OrderContent() {
     emoji: confettiEmojis[Math.floor(Math.random() * confettiEmojis.length)],
   }));
 
-  const estDate = new Date();
-  estDate.setDate(estDate.getDate() + 3);
-
   const trackingSteps = [
     { icon: faCircleCheck, label: 'Order Confirmed', done: true, time: 'Just now' },
     { icon: faBox, label: 'Preparing Order', done: false, time: 'In 24 hours' },
     { icon: faTruck, label: 'Out for Delivery', done: false, time: '1-2 days' },
-    { icon: faHouseChimney, label: 'Delivered', done: false, time: estDate.toLocaleDateString('en-PK', { weekday: 'long', month: 'short', day: 'numeric' }) },
+    { icon: faHouseChimney, label: 'Delivered', done: false, time: '2-4 days' },
   ];
 
   return (
@@ -66,21 +63,23 @@ function OrderContent() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
             <div className="text-4xl mb-3">🎉</div>
             <h1 className="font-display text-4xl sm:text-5xl text-gray-800 mb-2">Order Placed!</h1>
-            <p className="text-gray-500 font-semibold mb-1 text-sm sm:text-base">Thank you for shopping with Right Estore!</p>
-            <p className="text-gray-400 font-semibold text-xs sm:text-sm mb-6">Confirmation sent to your email shortly.</p>
+            <p className="text-gray-500 font-semibold mb-1 text-base">Thank you for shopping with Right Estore!</p>
+            <p className="text-gray-400 font-semibold text-sm mb-6">Confirmation sent to your email shortly.</p>
 
-            <div className="bg-purple-50 rounded-2xl px-6 py-4 mb-5">
-              <p className="text-xs font-black text-gray-400 uppercase tracking-wide mb-1">Order ID</p>
+            <div className="bg-purple-50 rounded-2xl px-6 py-4 mb-4">
+              <p className="text-xs font-black text-gray-400 uppercase tracking-wide mb-1">Your Order ID</p>
               <p className="font-display text-3xl text-purple-600">#{orderId}</p>
+              <p className="text-xs text-gray-400 font-semibold mt-1">Save this to track your order</p>
             </div>
 
-            <div className={`rounded-2xl px-5 py-3 mb-6 ${method === 'cod' ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
-              <p className="font-bold text-sm">
-                {method === 'cod' ? '💵 Cash on Delivery — Pay when you receive' : '💳 Card Payment Processed Successfully'}
+            <div className="bg-green-50 border border-green-200 rounded-2xl px-5 py-3 mb-6">
+              <p className="font-bold text-sm text-green-700">
+                💵 Cash on Delivery — Pay when you receive your order
               </p>
             </div>
 
-            <div className="space-y-2.5 text-left mb-7">
+            {/* Tracking steps */}
+            <div className="space-y-2.5 text-left mb-6">
               {trackingSteps.map(({ icon, label, done, time }, i) => (
                 <motion.div key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 + i * 0.1 }}
@@ -96,18 +95,26 @@ function OrderContent() {
               ))}
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <Link href="/orders" className="btn-outline text-center py-3 text-sm">Track Order</Link>
+            {/* Action buttons */}
+            <div className="grid grid-cols-1 gap-3">
+              <Link href={`/track-order?orderId=${orderId}`}>
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+                  className="btn-primary w-full py-3.5 justify-center text-base">
+                  <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4 mr-2" />
+                  Track My Order
+                </motion.button>
+              </Link>
               <Link href="/products">
-                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                  className="btn-primary w-full py-3 justify-center text-sm">
-                  Shop More 🛍️
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+                  className="btn-outline w-full py-3.5 justify-center">
+                  🛍️ Continue Shopping
                 </motion.button>
               </Link>
             </div>
           </motion.div>
         </motion.div>
 
+        {/* Coupon reward */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
           className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-3xl p-5 sm:p-6 text-white text-center">
           <FontAwesomeIcon icon={faGift} className="w-8 h-8 mb-2 mx-auto" />
@@ -124,7 +131,11 @@ function OrderContent() {
 
 export default function OrderConfirmationPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-6xl animate-bounce">🎉</div></div>}>
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-6xl animate-bounce">🎉</div>
+      </div>
+    }>
       <OrderContent />
     </Suspense>
   );
