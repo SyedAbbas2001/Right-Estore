@@ -70,7 +70,7 @@ export default function CartSidebar() {
                   exit={{ opacity: 0, x: -30, height: 0, marginBottom: 0 }}
                   transition={{ type: 'spring', stiffness: 250 }}
                   className="flex gap-3 bg-gray-50 rounded-2xl p-3">
-                  <div className="w-18 h-18 min-w-[72px] h-18 rounded-xl overflow-hidden bg-white">
+                  <div className="w-18 h-18 min-w-[90px] max-w-[90px] h-18 rounded-xl overflow-hidden bg-white">
                     <img src={item.images?.[0]} alt={item.name} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
