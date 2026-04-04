@@ -82,7 +82,7 @@ export default function ProductCard({ product, priority = false }) {
 
             <motion.button
               whileHover={{ scale: 1.15 }}
-              className="w-9 h-9 rounded-full bg-white shadow-lg flex items-center justify-center text-gray-400 hover:text-blue-500 transition-colors opacity-0 group-hover:opacity-100"
+              className="w-9 h-9 rounded-full bg-white shadow-lg flex items-center justify-center text-gray-400 hover:text-blue-500 transition-colors opacity-90 group-hover:opacity-100"
             >
               <FontAwesomeIcon icon={faEye} className="w-3.5 h-3.5" />
             </motion.button>
