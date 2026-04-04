@@ -22,13 +22,13 @@ export default function ProductCard({ product, priority = false }) {
   const wished = isWishlisted(product.id);
 
   // ✅ Safe review handling
-  const safeReviews = (product.reviews || []).filter(
-    r => r && typeof r === 'object' && !Array.isArray(r)
-  );
+  const safeReviews = Array.isArray(product.reviews)
+  ? product.reviews.filter(r => r && typeof r === 'object' && !Array.isArray(r))
+  : [];
 
-  const avgRating = safeReviews.length
-    ? safeReviews.reduce((a, r) => a + (Number(r.rating) || 0), 0) / safeReviews.length
-    : Number(product.rating) || 0;
+const avgRating = safeReviews.length
+  ? safeReviews.reduce((a, r) => a + (Number(r.rating) || 0), 0) / safeReviews.length
+  : Number(product.rating) || 0;
 
   const handleCart = e => {
     e.preventDefault();
