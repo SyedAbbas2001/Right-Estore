@@ -21,14 +21,14 @@ export default function ProductCard({ product, priority = false }) {
   const { addItem: toggleWish, isWishlisted } = useWishlistStore();
   const wished = isWishlisted(product.id);
 
-  // ✅ SAFE REVIEWS + REAL RATING
+  // ✅ Safe review handling
   const safeReviews = (product.reviews || []).filter(
-    r => r && typeof r === 'object'
+    r => r && typeof r === 'object' && !Array.isArray(r)
   );
 
   const avgRating = safeReviews.length
     ? safeReviews.reduce((a, r) => a + (Number(r.rating) || 0), 0) / safeReviews.length
-    : (product.rating || 0);
+    : Number(product.rating) || 0;
 
   const handleCart = e => {
     e.preventDefault();
@@ -82,7 +82,7 @@ export default function ProductCard({ product, priority = false }) {
 
             <motion.button
               whileHover={{ scale: 1.15 }}
-              className="w-9 h-9 rounded-full bg-white shadow-lg flex items-center justify-center text-gray-400 hover:text-blue-500 transition-colors opacity-90 group-hover:opacity-100"
+              className="w-9 h-9 rounded-full bg-white shadow-lg flex items-center justify-center text-gray-400 hover:text-blue-500 transition-colors opacity-100"
             >
               <FontAwesomeIcon icon={faEye} className="w-3.5 h-3.5" />
             </motion.button>
@@ -149,8 +149,6 @@ export default function ProductCard({ product, priority = false }) {
                 />
               ))}
             </div>
-
-            {/* ✅ FIXED (no crash) */}
             <span className="text-[10px] text-gray-400 font-semibold">
               ({safeReviews.length})
             </span>
