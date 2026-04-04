@@ -9,8 +9,27 @@ export async function GET(request, { params }) {
     const { slug } = await params;
     const product = await Product.findOne({ slug, isActive: true }).lean();
     if (!product) return NextResponse.json({ error: 'Product not found' }, { status: 404 });
-    return NextResponse.json(product);
+
+    // Serialize reviews — convert ObjectIds and dates to plain strings
+    const serialized = {
+      ...product,
+      _id: product._id?.toString(),
+      reviews: (product.reviews || []).map(r => ({
+        _id: r._id?.toString() || '',
+        userId: r.userId?.toString() || '',
+        userName: r.userName || '',
+        rating: Number(r.rating) || 0,
+        title: r.title || '',
+        comment: r.comment || '',
+        verified: Boolean(r.verified),
+        createdAt: r.createdAt ? new Date(r.createdAt).toISOString() : '',
+        updatedAt: r.updatedAt ? new Date(r.updatedAt).toISOString() : '',
+      })),
+    };
+
+    return NextResponse.json(serialized);
   } catch (error) {
+    console.error('Product GET error:', error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

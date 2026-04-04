@@ -98,10 +98,12 @@ export default function ProductDetailPage({ params }) {
 
   const wished = isWishlisted(product._id || product.id);
   const savings = product.originalPrice ? product.originalPrice - product.price : 0;
-  const productReviews = product.reviews || [];
-  const avgRating = productReviews.length
-    ? (productReviews.reduce((a, r) => a + r.rating, 0) / productReviews.length).toFixed(1)
-    : product.rating || 0;
+ const productReviews = (product.reviews || []).filter(
+  r => r && typeof r === 'object' && typeof r.comment === 'string'
+);
+const avgRating = productReviews.length
+  ? Math.round((productReviews.reduce((a, r) => a + (Number(r.rating) || 0), 0) / productReviews.length) * 10) / 10
+  : (typeof product.rating === 'number' ? product.rating : 0);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -349,34 +351,87 @@ export default function ProductDetailPage({ params }) {
                       <p className="font-bold text-gray-500">No reviews yet. {user ? 'Be the first!' : 'Login to write one!'}</p>
                       {!user && <Link href="/login" className="btn-primary text-sm mt-4 inline-block">Login to Review</Link>}
                     </div>
-                  ) : productReviews.map((r, i) => (
-                    <motion.div key={r._id || i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-                      className="bg-white rounded-3xl p-5 sm:p-6 shadow-soft">
-                      <div className="flex items-start gap-4">
-                        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center text-white font-black text-sm flex-shrink-0">
-                          {r.userName?.charAt(0)?.toUpperCase()}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
-                            <div className="flex items-center gap-2">
-                              <span className="font-black text-gray-800 text-sm">{r.userName}</span>
-                              {r.verified && <span className="text-[10px] bg-green-100 text-green-700 font-black px-2 py-0.5 rounded-full">✓ Verified</span>}
-                            </div>
-                            <span className="text-xs text-gray-400 font-semibold">
-                              {new Date(r.createdAt).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}
-                            </span>
-                          </div>
-                          <div className="flex gap-0.5 mb-2">
-                            {[...Array(5)].map((_, j) => (
-                              <FontAwesomeIcon key={j} icon={faStar} className={`w-3.5 h-3.5 ${j < r.rating ? 'text-amber-400' : 'text-gray-200'}`} />
-                            ))}
-                          </div>
-                          {r.title && <h4 className="font-black text-gray-800 text-sm mb-1">{r.title}</h4>}
-                          <p className="text-gray-600 font-semibold text-sm">{r.comment}</p>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
+                 ) : productReviews.map((r, i) => {
+  const reviewKey = r._id ? r._id.toString() : `review-${i}`;
+
+  let reviewDate = '';
+  try {
+    if (r.createdAt) {
+      reviewDate = new Date(r.createdAt).toLocaleDateString('en-PK', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+    }
+  } catch {
+    reviewDate = '';
+  }
+
+  return (
+    <motion.div
+      key={reviewKey}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: i * 0.1 }}
+      className="bg-white rounded-3xl p-5 sm:p-6 shadow-soft"
+    >
+      <div className="flex items-start gap-4">
+        {/* Avatar */}
+        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center text-white font-black text-sm flex-shrink-0">
+          {String(r.userName || '?').charAt(0).toUpperCase()}
+        </div>
+
+        <div className="flex-1">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <span className="font-black text-gray-800 text-sm">
+                {String(r.userName || 'Anonymous')}
+              </span>
+
+              {r.verified && (
+                <span className="text-[10px] bg-green-100 text-green-700 font-black px-2 py-0.5 rounded-full">
+                  ✓ Verified
+                </span>
+              )}
+            </div>
+
+            {reviewDate && (
+              <span className="text-xs text-gray-400 font-semibold">
+                {reviewDate}
+              </span>
+            )}
+          </div>
+
+          {/* Rating */}
+          <div className="flex gap-0.5 mb-2">
+            {[...Array(5)].map((_, j) => (
+              <FontAwesomeIcon
+                key={j}
+                icon={faStar}
+                className={`w-3.5 h-3.5 ${
+                  j < Number(r.rating) ? 'text-amber-400' : 'text-gray-200'
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Title */}
+          {r.title && (
+            <h4 className="font-black text-gray-800 text-sm mb-1">
+              {String(r.title)}
+            </h4>
+          )}
+
+          {/* Comment */}
+          <p className="text-gray-600 font-semibold text-sm">
+            {String(r.comment || '')}
+          </p>
+        </div>
+      </div>
+    </motion.div>
+  );
+})}
                 </div>
               )}
             </motion.div>
