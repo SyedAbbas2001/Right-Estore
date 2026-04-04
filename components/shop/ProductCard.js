@@ -59,8 +59,8 @@ export default function ProductCard({ product, priority = false }) {
           onMouseLeave={() => setImgIdx(0)}
         >
           <img
-            src={product.images?.[imgIdx] || product.images?.[0]}
-            alt={product.name}
+            src={product.images?.[imgIdx] || product.images?.[0] || '/fallback-600x600.png'}
+            alt={product.name || 'Product'}
             loading={priority ? 'eager' : 'lazy'}
             className="product-img w-full h-full object-cover"
           />
@@ -170,9 +170,9 @@ export default function ProductCard({ product, priority = false }) {
           {/* Sizes */}
           {product.sizes?.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
-              {product.sizes.slice(0, 3).map(s => (
+              {product.sizes.slice(0, 3).map((s, idx) => (
                 <span
-                  key={s}
+                  key={`${s}-${idx}`}
                   className="text-[9px] font-black text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md"
                 >
                   {s}
